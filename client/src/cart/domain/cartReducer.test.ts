@@ -4,12 +4,12 @@ import type {CartItem, CartState} from './types.js';
 const cartItems: CartItem[] = [
   {
     id: 'cart-1',
-    productInfo: {id: 'product-1', name: '사과', price: 10000, imageUrl: '/apple.png'},
+    productInfo: {id: 'product-hoodie', name: '후드 집업', price: 10000, imageUrl: '/hoodie.png'},
     quantity: 2,
   },
   {
     id: 'cart-2',
-    productInfo: {id: 'product-2', name: '바나나', price: 30000, imageUrl: '/banana.png'},
+    productInfo: {id: 'product-denim', name: '데님 팬츠', price: 30000, imageUrl: '/denim-pants.png'},
     quantity: 1,
   },
 ];

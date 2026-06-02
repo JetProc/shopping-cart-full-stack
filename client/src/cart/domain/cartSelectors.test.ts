@@ -14,17 +14,17 @@ const cartState: CartState = {
   items: [
     {
       id: 'cart-1',
-      productInfo: {id: 'product-1', name: '사과', price: 10000, imageUrl: '/apple.png'},
+      productInfo: {id: 'product-hoodie', name: '후드 집업', price: 10000, imageUrl: '/hoodie.png'},
       quantity: 2,
     },
     {
       id: 'cart-2',
-      productInfo: {id: 'product-2', name: '바나나', price: 30000, imageUrl: '/banana.png'},
+      productInfo: {id: 'product-denim', name: '데님 팬츠', price: 30000, imageUrl: '/denim-pants.png'},
       quantity: 1,
     },
     {
       id: 'cart-3',
-      productInfo: {id: 'product-3', name: '포도', price: 50000, imageUrl: '/grape.png'},
+      productInfo: {id: 'product-sneakers', name: '스니커즈', price: 50000, imageUrl: '/sneakers.png'},
       quantity: 3,
     },
   ],
