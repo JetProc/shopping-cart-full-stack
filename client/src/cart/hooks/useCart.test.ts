@@ -1,9 +1,11 @@
 import {act, renderHook, waitFor} from '@testing-library/react';
+import {http, HttpResponse} from 'msw';
 
 import {useCart} from './useCart.js';
 import type {CartItem} from '../domain/types.js';
+import {mockServer} from '../../test/mockServer.js';
 
-const fetchMock = jest.fn();
+const API_BASE_URL = 'https://paradi-easter.up.railway.app';
 
 const cartItems: CartItem[] = [
   {
@@ -20,21 +22,19 @@ const cartItems: CartItem[] = [
 
 beforeEach(() => {
   localStorage.clear();
-  fetchMock.mockReset();
-  globalThis.fetch = fetchMock as unknown as typeof fetch;
 });
 
-function createResponse(status: number, body?: unknown) {
-  return {
-    ok: status >= 200 && status < 300,
-    status,
-    json: async () => body,
-  } as Response;
+function mockGetCartItems(items: CartItem[]) {
+  mockServer.use(
+    http.get(`${API_BASE_URL}/carts`, () => {
+      return HttpResponse.json({body: items});
+    })
+  );
 }
 
 describe('useCart', () => {
   test('저장된 선택 상태가 없으면 장바구니 조회 후 전체 선택한다', async () => {
-    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+    mockGetCartItems(cartItems);
 
     const {result} = renderHook(() => useCart());
 
@@ -48,7 +48,7 @@ describe('useCart', () => {
 
   test('저장된 빈 선택 상태가 있으면 전체 해제 상태를 유지한다', async () => {
     localStorage.setItem('shopping-cart-selected-cart-item-ids', JSON.stringify([]));
-    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+    mockGetCartItems(cartItems);
 
     const {result} = renderHook(() => useCart());
 
@@ -61,7 +61,7 @@ describe('useCart', () => {
 
   test('저장된 선택 id 중 삭제된 장바구니 항목 id는 제외한다', async () => {
     localStorage.setItem('shopping-cart-selected-cart-item-ids', JSON.stringify(['cart-2', 'cart-999']));
-    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+    mockGetCartItems(cartItems);
 
     const {result} = renderHook(() => useCart());
 
@@ -73,7 +73,11 @@ describe('useCart', () => {
   });
 
   test('장바구니 조회에 실패하면 에러 상태로 변경한다', async () => {
-    fetchMock.mockResolvedValue(createResponse(500, {body: {message: '장바구니를 불러오지 못했습니다.'}}));
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        return HttpResponse.json({body: {message: '장바구니를 불러오지 못했습니다.'}}, {status: 500});
+      })
+    );
 
     const {result} = renderHook(() => useCart());
 
@@ -85,9 +89,19 @@ describe('useCart', () => {
   });
 
   test('장바구니 조회 실패 후 다시 조회하면 성공 상태로 복구한다', async () => {
-    fetchMock
-      .mockResolvedValueOnce(createResponse(500, {body: {message: '장바구니를 불러오지 못했습니다.'}}))
-      .mockResolvedValueOnce(createResponse(200, {body: cartItems}));
+    let requestCount = 0;
+
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        requestCount += 1;
+
+        if (requestCount === 1) {
+          return HttpResponse.json({body: {message: '장바구니를 불러오지 못했습니다.'}}, {status: 500});
+        }
+
+        return HttpResponse.json({body: cartItems});
+      })
+    );
 
     const {result} = renderHook(() => useCart());
 
@@ -111,7 +125,7 @@ describe('useCart', () => {
   });
 
   test('개별 장바구니 항목 선택을 변경하고 저장한다', async () => {
-    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+    mockGetCartItems(cartItems);
 
     const {result} = renderHook(() => useCart());
 
@@ -131,7 +145,7 @@ describe('useCart', () => {
   });
 
   test('전체 장바구니 항목 선택을 변경하고 저장한다', async () => {
-    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+    mockGetCartItems(cartItems);
 
     const {result} = renderHook(() => useCart());
 
@@ -151,9 +165,18 @@ describe('useCart', () => {
   });
 
   test('장바구니 항목 수량을 변경한다', async () => {
-    fetchMock
-      .mockResolvedValueOnce(createResponse(200, {body: cartItems}))
-      .mockResolvedValueOnce(createResponse(200, {body: {id: 'cart-1', quantity: 5}}));
+    let requestBody: unknown;
+
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        return HttpResponse.json({body: cartItems});
+      }),
+      http.patch(`${API_BASE_URL}/carts/cart-1`, async ({request}) => {
+        requestBody = await request.json();
+
+        return HttpResponse.json({body: {id: 'cart-1', quantity: 5}});
+      })
+    );
 
     const {result} = renderHook(() => useCart());
 
@@ -165,19 +188,20 @@ describe('useCart', () => {
       await result.current.changeCartItemQuantity('cart-1', 5);
     });
 
-    expect(fetchMock).toHaveBeenLastCalledWith('https://paradi-easter.up.railway.app/carts/cart-1', {
-      headers: {'Content-Type': 'application/json'},
-      method: 'PATCH',
-      body: JSON.stringify({quantity: 5}),
-    });
+    expect(requestBody).toEqual({quantity: 5});
     expect(result.current.state.items[0].quantity).toBe(5);
     expect(result.current.state.items[1].quantity).toBe(1);
   });
 
   test('장바구니 항목 수량 변경에 실패하면 에러 상태로 변경한다', async () => {
-    fetchMock
-      .mockResolvedValueOnce(createResponse(200, {body: cartItems}))
-      .mockResolvedValueOnce(createResponse(400, {body: {message: '수량은 1 이상 99 이하의 정수여야 합니다.'}}));
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        return HttpResponse.json({body: cartItems});
+      }),
+      http.patch(`${API_BASE_URL}/carts/cart-1`, () => {
+        return HttpResponse.json({body: {message: '수량은 1 이상 99 이하의 정수여야 합니다.'}}, {status: 400});
+      })
+    );
 
     const {result} = renderHook(() => useCart());
 
@@ -194,7 +218,18 @@ describe('useCart', () => {
   });
 
   test('장바구니 항목을 삭제한다', async () => {
-    fetchMock.mockResolvedValueOnce(createResponse(200, {body: cartItems})).mockResolvedValueOnce(createResponse(204));
+    let isDeleteRequested = false;
+
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        return HttpResponse.json({body: cartItems});
+      }),
+      http.delete(`${API_BASE_URL}/carts/cart-1`, () => {
+        isDeleteRequested = true;
+
+        return new HttpResponse(null, {status: 204});
+      })
+    );
 
     const {result} = renderHook(() => useCart());
 
@@ -206,18 +241,20 @@ describe('useCart', () => {
       await result.current.removeCartItem('cart-1');
     });
 
-    expect(fetchMock).toHaveBeenLastCalledWith('https://paradi-easter.up.railway.app/carts/cart-1', {
-      headers: {'Content-Type': 'application/json'},
-      method: 'DELETE',
-    });
+    expect(isDeleteRequested).toBe(true);
     expect(result.current.state.items).toEqual([cartItems[1]]);
     expect(result.current.state.selectedIds).toEqual(['cart-2']);
   });
 
   test('장바구니 항목 삭제에 실패하면 에러 상태로 변경한다', async () => {
-    fetchMock
-      .mockResolvedValueOnce(createResponse(200, {body: cartItems}))
-      .mockResolvedValueOnce(createResponse(404, {body: {message: '장바구니 항목을 찾을 수 없습니다.'}}));
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        return HttpResponse.json({body: cartItems});
+      }),
+      http.delete(`${API_BASE_URL}/carts/cart-1`, () => {
+        return HttpResponse.json({body: {message: '장바구니 항목을 찾을 수 없습니다.'}}, {status: 404});
+      })
+    );
 
     const {result} = renderHook(() => useCart());
 

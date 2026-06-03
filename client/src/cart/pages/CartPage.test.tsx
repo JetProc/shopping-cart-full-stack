@@ -1,10 +1,12 @@
 import {render, screen, waitFor, within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {http, HttpResponse} from 'msw';
 
 import {CartPage} from './CartPage.js';
 import type {CartItem} from '../domain/types.js';
+import {mockServer} from '../../test/mockServer.js';
 
-const fetchMock = jest.fn();
+const API_BASE_URL = 'https://paradi-easter.up.railway.app';
 
 const cartItems: CartItem[] = [
   {
@@ -21,23 +23,21 @@ const cartItems: CartItem[] = [
 
 beforeEach(() => {
   localStorage.clear();
-  fetchMock.mockReset();
-  globalThis.fetch = fetchMock as unknown as typeof fetch;
 });
 
-function createResponse(status: number, body?: unknown) {
-  return {
-    ok: status >= 200 && status < 300,
-    status,
-    json: async () => body,
-  } as Response;
+function mockGetCartItems(items: CartItem[]) {
+  mockServer.use(
+    http.get(`${API_BASE_URL}/carts`, () => {
+      return HttpResponse.json({body: items});
+    })
+  );
 }
 
 describe('CartPage', () => {
   test('선택한 장바구니 상품 기준으로 결제 요약과 하단 결제 버튼을 보여준다', async () => {
     const user = userEvent.setup();
 
-    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+    mockGetCartItems(cartItems);
 
     render(<CartPage />);
 
@@ -60,5 +60,40 @@ describe('CartPage', () => {
     });
 
     expect(within(paymentSummary).getAllByText('0원')).toHaveLength(3);
+  });
+
+  test('장바구니 상품을 불러오는 중이면 로딩 메시지를 보여준다', async () => {
+    let resolveRequest: () => void = () => {};
+    const pendingRequest = new Promise<void>((resolve) => {
+      resolveRequest = resolve;
+    });
+
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, async () => {
+        await pendingRequest;
+
+        return HttpResponse.json({body: cartItems});
+      })
+    );
+
+    render(<CartPage />);
+
+    expect(screen.getByText('불러오는 중입니다.')).toBeInTheDocument();
+
+    resolveRequest();
+
+    await screen.findByText('현재 2종류의 상품이 담겨있습니다.');
+  });
+
+  test('장바구니 상품을 불러오지 못하면 에러 메시지를 보여준다', async () => {
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        return HttpResponse.json({body: {message: '장바구니를 불러오지 못했습니다.'}}, {status: 500});
+      })
+    );
+
+    render(<CartPage />);
+
+    expect(await screen.findByText('장바구니를 불러오지 못했습니다.')).toBeInTheDocument();
   });
 });
