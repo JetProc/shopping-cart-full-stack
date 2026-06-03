@@ -25,7 +25,7 @@ export const NumericSpinner = ({disabled = false, max, min, onChange, value}: Nu
       >
         -
       </ControlButton>
-      <ValueText aria-live='polite'>{value}</ValueText>
+      <ValueText>{value}</ValueText>
       <ControlButton
         aria-label='숫자 증가'
         disabled={isIncreaseDisabled}
@@ -47,13 +47,16 @@ const Container = styled.div`
 const ControlButton = styled.button`
   width: 24px;
   height: 24px;
+
   border: 1px solid ${theme.colors.blackAlpha10};
   border-radius: ${theme.radius[8]};
   background: ${theme.colors.white};
+
   color: ${theme.colors.gray900};
-  cursor: pointer;
   font-size: ${typography.body.fontSize};
   line-height: ${typography.body.lineHeight};
+
+  cursor: pointer;
 
   &:disabled {
     color: ${theme.colors.gray300};

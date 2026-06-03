@@ -21,11 +21,11 @@ export const AsyncStateView = ({
   status,
 }: AsyncStateViewProps) => {
   if (status === 'loading') {
-    return <Message role='status'>{loadingMessage}</Message>;
+    return <Message>{loadingMessage}</Message>;
   }
 
   if (status === 'error') {
-    return <Message role='alert'>{errorMessage}</Message>;
+    return <Message>{errorMessage}</Message>;
   }
 
   if (status === 'empty') {

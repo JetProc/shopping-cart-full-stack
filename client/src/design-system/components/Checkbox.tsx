@@ -60,9 +60,11 @@ const Box = styled.span`
     position: absolute;
     top: 4px;
     left: 8px;
+
     display: none;
     width: 6px;
     height: 12px;
+
     border-right: 2px solid ${theme.colors.white};
     border-bottom: 2px solid ${theme.colors.white};
     content: '';

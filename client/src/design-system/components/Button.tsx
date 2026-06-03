@@ -20,16 +20,22 @@ const StyledButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   height: 100%;
   min-height: 48px;
+
   padding: 0 ${theme.spacing[16]};
+
   border: 0;
+
   background: ${theme.colors.black};
+
   color: ${theme.colors.white};
-  cursor: pointer;
   font-size: ${typography.body.fontSize};
   font-weight: ${fontWeights.bold};
   line-height: ${typography.body.lineHeight};
+
+  cursor: pointer;
 
   &:disabled {
     background: ${theme.colors.gray300};

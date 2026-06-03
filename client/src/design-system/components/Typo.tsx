@@ -36,6 +36,7 @@ const StyledText = styled.span<{
   $weight: FontWeight;
 }>`
   margin: 0;
+
   color: ${({$color}) => theme.colors[$color]};
   font-size: ${({$variant}) => typography[$variant].fontSize};
   font-weight: ${({$weight}) => fontWeights[$weight]};
