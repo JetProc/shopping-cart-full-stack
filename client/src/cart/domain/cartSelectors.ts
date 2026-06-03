@@ -1,6 +1,6 @@
 import type {CartState} from './types.js';
 
-const FREE_SHIPPING_THRESHOLD = 100000;
+export const FREE_SHIPPING_THRESHOLD = 100000;
 const SHIPPING_FEE = 3000;
 
 function getSelectedCartItems(cartState: CartState) {
