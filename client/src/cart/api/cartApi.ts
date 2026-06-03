@@ -1,6 +1,7 @@
 import type {CartItem, CartItemId} from '../domain/types.js';
 
-const API_BASE_URL = 'https://paradi-easter.up.railway.app';
+const DEFAULT_API_BASE_URL = 'https://paradi-easter.up.railway.app';
+const API_BASE_URL = getApiBaseUrl();
 const DEFAULT_CART_API_ERROR_MESSAGE = '장바구니 요청에 실패했습니다.';
 
 type ApiResponse<T> = {
@@ -62,4 +63,11 @@ async function getCartApiErrorMessage(response: Response) {
   } catch {
     return DEFAULT_CART_API_ERROR_MESSAGE;
   }
+}
+
+function getApiBaseUrl() {
+  if (typeof __API_BASE_URL__ !== 'string') return DEFAULT_API_BASE_URL;
+  if (__API_BASE_URL__.length === 0) return DEFAULT_API_BASE_URL;
+
+  return __API_BASE_URL__;
 }
