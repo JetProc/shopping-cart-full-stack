@@ -22,6 +22,6 @@ const Container = styled.header`
   display: flex;
   align-items: center;
   min-height: 64px;
-  padding: 0 ${theme.spacing[24]};
+  padding: 0 24px;
   background: ${theme.colors.black};
 `;
