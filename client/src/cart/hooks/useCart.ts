@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useReducer} from 'react';
 
-import {getCartItems} from '../api/cartApi.js';
+import {deleteCartItem, getCartItems, updateCartItemQuantity} from '../api/cartApi.js';
 import {cartReducer} from '../domain/cartReducer.js';
 import {loadSelectedCartItemIds, saveSelectedCartItemIds} from '../domain/selectionStorage.js';
 import type {CartItem, CartItemId, CartState} from '../domain/types.js';
@@ -46,11 +46,39 @@ export function useCart() {
     dispatch({type: 'toggleAllCartItems'});
   }, []);
 
+  const changeCartItemQuantity = useCallback(async (cartItemId: CartItemId, quantity: CartItem['quantity']) => {
+    try {
+      const updatedCartItem = await updateCartItemQuantity(cartItemId, quantity);
+
+      dispatch({
+        type: 'updateCartItemQuantity',
+        payload: {
+          cartItemId: updatedCartItem.id,
+          quantity: updatedCartItem.quantity,
+        },
+      });
+    } catch (error) {
+      dispatch({type: 'fetchError', payload: {errorMessage: getCartErrorMessage(error)}});
+    }
+  }, []);
+
+  const removeCartItem = useCallback(async (cartItemId: CartItemId) => {
+    try {
+      await deleteCartItem(cartItemId);
+
+      dispatch({type: 'deleteCartItem', payload: {cartItemId}});
+    } catch (error) {
+      dispatch({type: 'fetchError', payload: {errorMessage: getCartErrorMessage(error)}});
+    }
+  }, []);
+
   return {
     state,
     loadCartItems,
     toggleCartItem,
     toggleAllCartItems,
+    changeCartItemQuantity,
+    removeCartItem,
   };
 }
 

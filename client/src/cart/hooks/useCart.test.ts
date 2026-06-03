@@ -149,4 +149,87 @@ describe('useCart', () => {
 
     expect(localStorage.getItem('shopping-cart-selected-cart-item-ids')).toBe(JSON.stringify([]));
   });
+
+  test('장바구니 항목 수량을 변경한다', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createResponse(200, {body: cartItems}))
+      .mockResolvedValueOnce(createResponse(200, {body: {id: 'cart-1', quantity: 5}}));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    await act(async () => {
+      await result.current.changeCartItemQuantity('cart-1', 5);
+    });
+
+    expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3000/carts/cart-1', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'PATCH',
+      body: JSON.stringify({quantity: 5}),
+    });
+    expect(result.current.state.items[0].quantity).toBe(5);
+    expect(result.current.state.items[1].quantity).toBe(1);
+  });
+
+  test('장바구니 항목 수량 변경에 실패하면 에러 상태로 변경한다', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createResponse(200, {body: cartItems}))
+      .mockResolvedValueOnce(createResponse(400, {body: {message: '수량은 1 이상 99 이하의 정수여야 합니다.'}}));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    await act(async () => {
+      await result.current.changeCartItemQuantity('cart-1', 100);
+    });
+
+    expect(result.current.state.status).toBe('error');
+    expect(result.current.state.errorMessage).toBe('수량은 1 이상 99 이하의 정수여야 합니다.');
+  });
+
+  test('장바구니 항목을 삭제한다', async () => {
+    fetchMock.mockResolvedValueOnce(createResponse(200, {body: cartItems})).mockResolvedValueOnce(createResponse(204));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    await act(async () => {
+      await result.current.removeCartItem('cart-1');
+    });
+
+    expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3000/carts/cart-1', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'DELETE',
+    });
+    expect(result.current.state.items).toEqual([cartItems[1]]);
+    expect(result.current.state.selectedIds).toEqual(['cart-2']);
+  });
+
+  test('장바구니 항목 삭제에 실패하면 에러 상태로 변경한다', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createResponse(200, {body: cartItems}))
+      .mockResolvedValueOnce(createResponse(404, {body: {message: '장바구니 항목을 찾을 수 없습니다.'}}));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    await act(async () => {
+      await result.current.removeCartItem('cart-1');
+    });
+
+    expect(result.current.state.status).toBe('error');
+    expect(result.current.state.errorMessage).toBe('장바구니 항목을 찾을 수 없습니다.');
+  });
 });
