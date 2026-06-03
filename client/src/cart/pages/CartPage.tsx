@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import {useNavigate} from 'react-router-dom';
 
 import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
 
@@ -16,6 +17,7 @@ import {getSelectedOrderAmount, getShippingFee, getTotalPrice} from '../domain/c
 import type {CartState} from '../domain/types.js';
 
 export const CartPage = () => {
+  const navigate = useNavigate();
   const {changeCartItemQuantity, loadCartItems, removeCartItem, state, toggleAllCartItems, toggleCartItem} = useCart();
   const status = getCartPageStatus(state);
   const isAllSelected = isEveryCartItemSelected(state);
@@ -49,7 +51,9 @@ export const CartPage = () => {
           />
           <PaymentSummary selectedOrderAmount={selectedOrderAmount} shippingFee={shippingFee} totalPrice={totalPrice} />
         </AsyncStateView>
-        {isOrderActionVisible && <CartOrderAction disabled={isPaymentButtonDisabled} />}
+        {isOrderActionVisible && (
+          <CartOrderAction disabled={isPaymentButtonDisabled} onClick={() => navigate('/order-confirm')} />
+        )}
       </Main>
     </>
   );

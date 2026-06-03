@@ -1,8 +1,10 @@
 import {render, screen, waitFor, within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {http, HttpResponse} from 'msw';
+import {MemoryRouter, Route, Routes} from 'react-router-dom';
 
 import {CartPage} from './CartPage.js';
+import {OrderConfirmPage} from './OrderConfirmPage.js';
 import type {CartItem} from '../domain/types.js';
 import {mockServer} from '../../test/mockServer.js';
 
@@ -33,13 +35,32 @@ function mockGetCartItems(items: CartItem[]) {
   );
 }
 
+function renderCartPage() {
+  return render(
+    <MemoryRouter>
+      <CartPage />
+    </MemoryRouter>
+  );
+}
+
+function renderCartRoutes() {
+  return render(
+    <MemoryRouter initialEntries={['/cart']}>
+      <Routes>
+        <Route path='/cart' element={<CartPage />} />
+        <Route path='/order-confirm' element={<OrderConfirmPage />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
 describe('CartPage', () => {
   test('선택한 장바구니 상품 기준으로 결제 요약과 하단 결제 버튼을 보여준다', async () => {
     const user = userEvent.setup();
 
     mockGetCartItems(cartItems);
 
-    render(<CartPage />);
+    renderCartPage();
 
     await screen.findByText('현재 2종류의 상품이 담겨있습니다.');
 
@@ -76,7 +97,7 @@ describe('CartPage', () => {
       })
     );
 
-    render(<CartPage />);
+    renderCartPage();
 
     expect(screen.getByRole('status', {name: '장바구니를 불러오는 중입니다.'})).toBeInTheDocument();
 
@@ -101,7 +122,7 @@ describe('CartPage', () => {
       })
     );
 
-    render(<CartPage />);
+    renderCartPage();
 
     expect(await screen.findByRole('alert')).toHaveTextContent('장바구니를 불러오지 못했습니다.');
 
@@ -114,10 +135,28 @@ describe('CartPage', () => {
   test('장바구니가 비어 있으면 안내 문구와 비활성 주문 버튼을 보여준다', async () => {
     mockGetCartItems([]);
 
-    render(<CartPage />);
+    renderCartPage();
 
     expect(await screen.findByText('장바구니에 담은 상품이 없습니다.')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: '주문 확인'})).toBeDisabled();
     expect(screen.queryByText('현재 0종류의 상품이 담겨있습니다.')).not.toBeInTheDocument();
+  });
+
+  test('주문 확인 버튼을 누르면 주문 확인 페이지로 이동한다', async () => {
+    const user = userEvent.setup();
+
+    mockGetCartItems(cartItems);
+
+    renderCartRoutes();
+
+    await screen.findByText('현재 2종류의 상품이 담겨있습니다.');
+
+    await user.click(screen.getByRole('button', {name: '주문 확인'}));
+
+    expect(await screen.findByRole('heading', {name: '주문 확인'})).toBeInTheDocument();
+    expect(screen.getByText(/총 2종류의 상품 3개를 주문합니다/)).toBeInTheDocument();
+    expect(screen.getByText(/최종 결제 금액을 확인해 주세요/)).toBeInTheDocument();
+    expect(screen.getByText('120,000원')).toBeInTheDocument();
+    expect(screen.getByRole('button', {name: '결제하기'})).toBeDisabled();
   });
 });
