@@ -1,9 +1,15 @@
-import {Route, Routes} from 'react-router-dom';
+import {Navigate, Route, Routes} from 'react-router-dom';
+
+import {PhoneView} from './cart/components/PhoneView.js';
+import {CartPage} from './cart/pages/CartPage.js';
 
 export const App = () => {
   return (
-    <Routes>
-      <Route path='/' element={<div>장바구니 앱 준비 완료</div>} />
-    </Routes>
+    <PhoneView>
+      <Routes>
+        <Route path='/' element={<Navigate replace to='/cart' />} />
+        <Route path='/cart' element={<CartPage />} />
+      </Routes>
+    </PhoneView>
   );
 };
