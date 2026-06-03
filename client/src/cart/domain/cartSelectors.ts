@@ -3,40 +3,40 @@ import type {CartState} from './types.js';
 const FREE_SHIPPING_THRESHOLD = 100000;
 const SHIPPING_FEE = 3000;
 
-function getSelectedCartItems(state: CartState) {
-  return state.items.filter((item) => state.selectedIds.includes(item.id));
+function getSelectedCartItems(cartState: CartState) {
+  return cartState.items.filter((item) => cartState.selectedIds.includes(item.id));
 }
 
-export function getOrderAmount(state: CartState) {
-  const selectedItems = getSelectedCartItems(state);
+export function getSelectedOrderAmount(cartState: CartState) {
+  const selectedItems = getSelectedCartItems(cartState);
 
-  return selectedItems.reduce((total, item) => {
-    return total + item.productInfo.price * item.quantity;
+  return selectedItems.reduce((orderAmount, item) => {
+    return orderAmount + item.productInfo.price * item.quantity;
   }, 0);
 }
 
-export function getShippingFee(state: CartState) {
-  const orderAmount = getOrderAmount(state);
+export function getShippingFee(cartState: CartState) {
+  const selectedOrderAmount = getSelectedOrderAmount(cartState);
 
-  if (orderAmount === 0) return 0;
-  if (orderAmount >= FREE_SHIPPING_THRESHOLD) return 0;
+  if (selectedOrderAmount === 0) return 0;
+  if (selectedOrderAmount >= FREE_SHIPPING_THRESHOLD) return 0;
 
   return SHIPPING_FEE;
 }
 
-export function getTotalPayment(state: CartState) {
-  const orderAmount = getOrderAmount(state);
-  const shippingFee = getShippingFee(state);
+export function getTotalPrice(cartState: CartState) {
+  const selectedOrderAmount = getSelectedOrderAmount(cartState);
+  const shippingFee = getShippingFee(cartState);
 
-  return orderAmount + shippingFee;
+  return selectedOrderAmount + shippingFee;
 }
 
-export function getSelectedItemCount(state: CartState) {
-  return getSelectedCartItems(state).length;
+export function getSelectedItemCount(cartState: CartState) {
+  return getSelectedCartItems(cartState).length;
 }
 
-export function getSelectedQuantity(state: CartState) {
-  return getSelectedCartItems(state).reduce((total, item) => {
-    return total + item.quantity;
+export function getSelectedQuantity(cartState: CartState) {
+  return getSelectedCartItems(cartState).reduce((selectedQuantity, item) => {
+    return selectedQuantity + item.quantity;
   }, 0);
 }
