@@ -5,6 +5,7 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleNameMapper: {
+    '\\.(gif|jpg|jpeg|png|svg|webp)$': '<rootDir>/src/test/fileMock.ts',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {
