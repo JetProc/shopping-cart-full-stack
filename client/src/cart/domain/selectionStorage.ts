@@ -3,12 +3,12 @@ import type {CartItemId} from './types.js';
 const SELECTED_CART_ITEM_IDS_STORAGE_KEY = 'shopping-cart-selected-cart-item-ids';
 
 export function loadSelectedCartItemIds(): CartItemId[] | null {
-  const storedSelectedIds = localStorage.getItem(SELECTED_CART_ITEM_IDS_STORAGE_KEY);
+  const currentSelectedIds = localStorage.getItem(SELECTED_CART_ITEM_IDS_STORAGE_KEY);
 
-  if (storedSelectedIds === null) return null;
+  if (currentSelectedIds === null) return null;
 
   try {
-    const selectedIds = JSON.parse(storedSelectedIds);
+    const selectedIds = JSON.parse(currentSelectedIds);
 
     if (!isCartItemIdArray(selectedIds)) return null;
 

@@ -1,38 +1,29 @@
 import type {CartItem, CartItemId, CartState} from './types.js';
 
+type FetchSuccessPayload = Pick<CartState, 'items' | 'selectedIds'>;
+type FetchErrorPayload = Pick<CartState, 'errorMessage'>;
+type CartItemIdPayload = {cartItemId: CartItemId};
+type UpdateCartItemQuantityPayload = CartItemIdPayload & {quantity: CartItem['quantity']};
+
 export type CartAction =
   | {type: 'fetchStart'}
-  | {type: 'fetchSuccess'; payload: {items: CartItem[]; selectedIds: CartItemId[]}}
-  | {type: 'fetchError'; payload: {errorMessage: string}}
-  | {type: 'toggleCartItem'; payload: {cartItemId: CartItemId}}
+  | {type: 'fetchSuccess'; payload: FetchSuccessPayload}
+  | {type: 'fetchError'; payload: FetchErrorPayload}
+  | {type: 'toggleCartItem'; payload: CartItemIdPayload}
   | {type: 'toggleAllCartItems'}
-  | {type: 'updateCartItemQuantity'; payload: {cartItemId: CartItemId; quantity: number}}
-  | {type: 'deleteCartItem'; payload: {cartItemId: CartItemId}};
+  | {type: 'updateCartItemQuantity'; payload: UpdateCartItemQuantityPayload}
+  | {type: 'deleteCartItem'; payload: CartItemIdPayload};
 
 export function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'fetchStart': {
-      return {
-        ...state,
-        status: 'loading',
-        errorMessage: '',
-      };
+      return startFetchingCart(state);
     }
     case 'fetchSuccess': {
-      return {
-        ...state,
-        status: 'success',
-        items: action.payload.items,
-        selectedIds: action.payload.selectedIds,
-        errorMessage: '',
-      };
+      return completeFetchingCart(state, action.payload);
     }
     case 'fetchError': {
-      return {
-        ...state,
-        status: 'error',
-        errorMessage: action.payload.errorMessage,
-      };
+      return failFetchingCart(state, action.payload);
     }
     case 'toggleCartItem': {
       return toggleCartItem(state, action.payload.cartItemId);
@@ -49,11 +40,42 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
   }
 }
 
+// Fetch state functions
+
+function startFetchingCart(state: CartState): CartState {
+  return {
+    ...state,
+    status: 'loading',
+    errorMessage: '',
+  };
+}
+
+function completeFetchingCart(state: CartState, payload: FetchSuccessPayload): CartState {
+  return {
+    ...state,
+    status: 'success',
+    items: payload.items,
+    selectedIds: payload.selectedIds,
+    errorMessage: '',
+  };
+}
+
+function failFetchingCart(state: CartState, payload: FetchErrorPayload): CartState {
+  return {
+    ...state,
+    status: 'error',
+    errorMessage: payload.errorMessage,
+  };
+}
+
+// Selection state functions
+
 function toggleCartItem(state: CartState, cartItemId: CartItemId): CartState {
-  if (state.selectedIds.includes(cartItemId)) {
-    const selectedIds = state.selectedIds.filter((selectedCartItemId) => {
-      return selectedCartItemId !== cartItemId;
-    });
+  const isAlreadySelected = state.selectedIds.includes(cartItemId);
+
+  // 이미 해당 상품이 체크되어 있다면
+  if (isAlreadySelected) {
+    const selectedIds = state.selectedIds.filter((selectedId) => selectedId !== cartItemId);
 
     return {
       ...state,
@@ -61,20 +83,17 @@ function toggleCartItem(state: CartState, cartItemId: CartItemId): CartState {
     };
   }
 
-  const selectedIds = [...state.selectedIds, cartItemId];
-
+  // 체크해야 한다면
   return {
     ...state,
-    selectedIds,
+    selectedIds: [...state.selectedIds, cartItemId],
   };
 }
 
 function toggleAllCartItems(state: CartState): CartState {
   const cartItemIds = state.items.map((cartItem) => cartItem.id);
 
-  const isAllSelected = cartItemIds.every((cartItemId) => {
-    return state.selectedIds.includes(cartItemId);
-  });
+  const isAllSelected = cartItemIds.every((cartItemId) => state.selectedIds.includes(cartItemId));
 
   if (isAllSelected) {
     return {...state, selectedIds: []};
@@ -83,23 +102,28 @@ function toggleAllCartItems(state: CartState): CartState {
   return {...state, selectedIds: cartItemIds};
 }
 
-function updateCartItemQuantity(state: CartState, payload: {cartItemId: CartItemId; quantity: number}): CartState {
+// Item state functions
+
+function updateCartItemQuantity(state: CartState, payload: UpdateCartItemQuantityPayload): CartState {
+  const updatedCartItems = state.items.map((cartItem) => {
+    if (cartItem.id !== payload.cartItemId) return cartItem;
+
+    return {...cartItem, quantity: payload.quantity};
+  });
+
   return {
     ...state,
-    items: state.items.map((cartItem) => {
-      if (cartItem.id !== payload.cartItemId) return cartItem;
-
-      return {...cartItem, quantity: payload.quantity};
-    }),
+    items: updatedCartItems,
   };
 }
 
 function deleteCartItem(state: CartState, cartItemId: CartItemId): CartState {
+  const remainingCartItems = state.items.filter((cartItem) => cartItem.id !== cartItemId);
+  const remainingSelectedIds = state.selectedIds.filter((selectedCartItemId) => selectedCartItemId !== cartItemId);
+
   return {
     ...state,
-    items: state.items.filter((cartItem) => cartItem.id !== cartItemId),
-    selectedIds: state.selectedIds.filter((selectedCartItemId) => {
-      return selectedCartItemId !== cartItemId;
-    }),
+    items: remainingCartItems,
+    selectedIds: remainingSelectedIds,
   };
 }

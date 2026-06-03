@@ -7,7 +7,7 @@ type ApiResponse<T> = {
   body: T;
 };
 
-type UpdatedCartItemQuantity = Pick<CartItem, 'id' | 'quantity'>;
+type UpdatedCartItemQuantityResponse = Pick<CartItem, 'id' | 'quantity'>;
 
 export async function getCartItems(): Promise<CartItem[]> {
   return requestCartApi('/carts');
@@ -15,8 +15,8 @@ export async function getCartItems(): Promise<CartItem[]> {
 
 export async function updateCartItemQuantity(
   cartItemId: CartItemId,
-  quantity: number
-): Promise<UpdatedCartItemQuantity> {
+  quantity: CartItem['quantity']
+): Promise<UpdatedCartItemQuantityResponse> {
   return requestCartApi(`/carts/${cartItemId}`, {
     method: 'PATCH',
     body: JSON.stringify({quantity}),
@@ -55,9 +55,10 @@ async function requestCartResponse(path: string, options: RequestInit = {}) {
 
 async function getCartApiErrorMessage(response: Response) {
   try {
-    const data = (await response.json()) as ApiResponse<{message?: string}>;
+    const errorResponse = (await response.json()) as ApiResponse<{message?: string}>;
+    const errorMessage = errorResponse.body?.message;
 
-    return data.body?.message ?? DEFAULT_CART_API_ERROR_MESSAGE;
+    return errorMessage ?? DEFAULT_CART_API_ERROR_MESSAGE;
   } catch {
     return DEFAULT_CART_API_ERROR_MESSAGE;
   }

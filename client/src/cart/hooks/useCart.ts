@@ -20,7 +20,7 @@ export function useCart() {
 
     try {
       const cartItems = await getCartItems();
-      const selectedIds = getInitialSelectedCartItemIds(cartItems);
+      const selectedIds = createInitialSelectedCartItemIds(cartItems);
 
       dispatch({type: 'fetchSuccess', payload: {items: cartItems, selectedIds}});
     } catch (error) {
@@ -54,20 +54,16 @@ export function useCart() {
   };
 }
 
-function getInitialSelectedCartItemIds(cartItems: CartItem[]) {
+function createInitialSelectedCartItemIds(cartItems: CartItem[]) {
   const savedSelectedCartItemIds = loadSelectedCartItemIds();
+  const currentCartItemIds = cartItems.map((cartItem) => cartItem.id);
 
   if (savedSelectedCartItemIds === null) {
-    return cartItems.map((cartItem) => cartItem.id);
+    //이전에 선택된 정보가 없다면(첫 진입) 전체 선택이 기본값
+    return currentCartItemIds;
   }
 
-  return getExistingSelectedCartItemIds(savedSelectedCartItemIds, cartItems);
-}
-
-function getExistingSelectedCartItemIds(selectedCartItemIds: CartItemId[], cartItems: CartItem[]) {
-  return selectedCartItemIds.filter((selectedCartItemId) => {
-    return cartItems.some((cartItem) => cartItem.id === selectedCartItemId);
-  });
+  return savedSelectedCartItemIds.filter((selectedCartItemId) => currentCartItemIds.includes(selectedCartItemId));
 }
 
 function getCartErrorMessage(error: unknown) {
