@@ -5,6 +5,7 @@ import {Typo} from '../../../design-system/components/Typo.js';
 import {theme} from '../../../design-system/foundation/theme.js';
 import {fontWeights, typography} from '../../../design-system/foundation/typography.js';
 import {FREE_SHIPPING_THRESHOLD} from '../../domain/cartSelectors.js';
+import {formatPrice} from '../../domain/priceFormatter.js';
 
 type PaymentSummaryProps = {
   selectedOrderAmount: number;
@@ -38,10 +39,6 @@ export const PaymentSummary = ({selectedOrderAmount, shippingFee, totalPrice}: P
     </SummaryArea>
   );
 };
-
-function formatPrice(price: number) {
-  return price.toLocaleString('ko-KR');
-}
 
 const SummaryArea = styled.section`
   margin-top: 32px;

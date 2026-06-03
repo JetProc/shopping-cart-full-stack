@@ -5,6 +5,7 @@ import {NumericSpinner} from '../../../design-system/components/NumericSpinner.j
 import {Typo} from '../../../design-system/components/Typo.js';
 import {theme} from '../../../design-system/foundation/theme.js';
 import {fontWeights, typography} from '../../../design-system/foundation/typography.js';
+import {formatPrice} from '../../domain/priceFormatter.js';
 import type {CartItem, CartItemId} from '../../domain/types.js';
 
 type CartItemRowProps = {
@@ -42,7 +43,7 @@ export const CartItemRow = ({cartItem, checked, onChangeQuantity, onDelete, onTo
               {productInfo.name}
             </Typo>
             <Typo as='strong' color='black' variant='display' weight='bold'>
-              {productInfo.price.toLocaleString('ko-KR')}원
+              {formatPrice(productInfo.price)}원
             </Typo>
           </TextGroup>
           <NumericSpinner

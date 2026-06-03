@@ -12,6 +12,7 @@ import {CartErrorView} from '../components/cart-page/CartErrorView.js';
 import {CartLoadingView} from '../components/cart-page/CartLoadingView.js';
 import {useCart} from '../hooks/useCart.js';
 import {getSelectedItemCount, getSelectedQuantity, getTotalPrice} from '../domain/cartSelectors.js';
+import {formatPrice} from '../domain/priceFormatter.js';
 
 export const OrderConfirmPage = () => {
   const navigate = useNavigate();
@@ -55,10 +56,6 @@ export const OrderConfirmPage = () => {
     </>
   );
 };
-
-function formatPrice(price: number) {
-  return price.toLocaleString('ko-KR');
-}
 
 const Header = styled.header`
   display: flex;
