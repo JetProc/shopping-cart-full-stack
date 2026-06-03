@@ -37,7 +37,7 @@ export const AsyncStateView = ({
 
 const Message = styled.p`
   margin: 0;
-  padding: ${theme.spacing[32]} ${theme.spacing[24]};
+  padding: 32px 24px;
   color: ${theme.colors.gray900};
   text-align: center;
 `;

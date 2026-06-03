@@ -26,7 +26,7 @@ const Label = styled.label`
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: ${theme.spacing[8]};
+  gap: 8px;
   cursor: pointer;
 `;
 

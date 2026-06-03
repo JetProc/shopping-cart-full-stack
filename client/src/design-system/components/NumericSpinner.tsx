@@ -41,7 +41,7 @@ export const NumericSpinner = ({disabled = false, max, min, onChange, value}: Nu
 const Container = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: ${theme.spacing[12]};
+  gap: 12px;
 `;
 
 const ControlButton = styled.button`
@@ -57,7 +57,7 @@ const ControlButton = styled.button`
   background: ${theme.colors.white};
 
   color: ${theme.colors.gray900};
-  font-size: 20px;
+  font-size: 21px;
   line-height: 1;
 
   cursor: pointer;

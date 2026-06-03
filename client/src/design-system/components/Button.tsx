@@ -24,7 +24,7 @@ const StyledButton = styled.button`
   height: 100%;
   min-height: 48px;
 
-  padding: 0 ${theme.spacing[16]};
+  padding: 0 16px;
 
   border: 0;
 
