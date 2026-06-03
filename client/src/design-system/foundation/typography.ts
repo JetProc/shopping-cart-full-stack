@@ -7,7 +7,7 @@ export const fontWeights = {
 export const typography = {
   display: {
     fontSize: '24px',
-    lineHeight: '32px',
+    lineHeight: '100%',
   },
   headline: {
     fontSize: '20px',
@@ -19,7 +19,7 @@ export const typography = {
   },
   caption: {
     fontSize: '12px',
-    lineHeight: '16px',
+    lineHeight: '15px',
   },
 } as const;
 

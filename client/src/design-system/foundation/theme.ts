@@ -17,6 +17,7 @@ export const theme = {
     20: '20px',
     24: '24px',
     32: '32px',
+    36: '36px',
   },
   radius: {
     4: '4px',

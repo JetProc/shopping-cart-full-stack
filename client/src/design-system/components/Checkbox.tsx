@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import type {InputHTMLAttributes, ReactNode} from 'react';
 
+import {Typo} from './Typo.js';
 import {theme} from '../foundation/theme.js';
-import {typography} from '../foundation/typography.js';
 
 type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   label?: ReactNode;
@@ -13,7 +13,11 @@ export const Checkbox = ({label, ...props}: CheckboxProps) => {
     <Label>
       <Input type='checkbox' {...props} />
       <Box aria-hidden='true' />
-      {label && <LabelText>{label}</LabelText>}
+      {label && (
+        <Typo variant='caption' weight='medium'>
+          {label}
+        </Typo>
+      )}
     </Label>
   );
 };
@@ -39,7 +43,8 @@ const Input = styled.input`
   }
 
   &:checked + span::after {
-    display: block;
+    border-right-color: ${theme.colors.white};
+    border-bottom-color: ${theme.colors.white};
   }
 
   &:focus-visible + span {
@@ -58,22 +63,16 @@ const Box = styled.span`
 
   &::after {
     position: absolute;
-    top: 4px;
+    top: 3px;
     left: 8px;
 
-    display: none;
-    width: 6px;
-    height: 12px;
+    display: block;
+    width: 8px;
+    height: 14px;
 
-    border-right: 2px solid ${theme.colors.white};
-    border-bottom: 2px solid ${theme.colors.white};
+    border-right: 2px solid ${theme.colors.blackAlpha10};
+    border-bottom: 2px solid ${theme.colors.blackAlpha10};
     content: '';
     transform: rotate(45deg);
   }
-`;
-
-const LabelText = styled.span`
-  color: ${theme.colors.textPrimary};
-  font-size: ${typography.body.fontSize};
-  line-height: ${typography.body.lineHeight};
 `;

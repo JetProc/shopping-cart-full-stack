@@ -18,6 +18,11 @@ export const GlobalStyle = () => {
 
         body {
           margin: 0;
+          font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        button {
+          font-family: inherit;
         }
       `}
     />

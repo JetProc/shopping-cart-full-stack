@@ -41,20 +41,24 @@ export const NumericSpinner = ({disabled = false, max, min, onChange, value}: Nu
 const Container = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: ${theme.spacing[16]};
+  gap: ${theme.spacing[12]};
 `;
 
 const ControlButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
+  padding: 0;
 
   border: 1px solid ${theme.colors.blackAlpha10};
   border-radius: ${theme.radius[8]};
   background: ${theme.colors.white};
 
   color: ${theme.colors.gray900};
-  font-size: ${typography.body.fontSize};
-  line-height: ${typography.body.lineHeight};
+  font-size: 20px;
+  line-height: 1;
 
   cursor: pointer;
 
