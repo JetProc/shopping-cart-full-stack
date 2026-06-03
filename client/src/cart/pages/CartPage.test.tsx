@@ -62,7 +62,7 @@ describe('CartPage', () => {
     expect(within(paymentSummary).getAllByText('0원')).toHaveLength(3);
   });
 
-  test('장바구니 상품을 불러오는 중이면 로딩 메시지를 보여준다', async () => {
+  test('장바구니 상품을 불러오는 중이면 스피너를 보여준다', async () => {
     let resolveRequest: () => void = () => {};
     const pendingRequest = new Promise<void>((resolve) => {
       resolveRequest = resolve;
@@ -78,22 +78,46 @@ describe('CartPage', () => {
 
     render(<CartPage />);
 
-    expect(screen.getByText('불러오는 중입니다.')).toBeInTheDocument();
+    expect(screen.getByRole('status', {name: '장바구니를 불러오는 중입니다.'})).toBeInTheDocument();
 
     resolveRequest();
 
     await screen.findByText('현재 2종류의 상품이 담겨있습니다.');
   });
 
-  test('장바구니 상품을 불러오지 못하면 에러 메시지를 보여준다', async () => {
+  test('장바구니 상품을 불러오지 못하면 에러 메시지를 보여주고 다시 시도할 수 있다', async () => {
+    const user = userEvent.setup();
+    let requestCount = 0;
+
     mockServer.use(
       http.get(`${API_BASE_URL}/carts`, () => {
-        return HttpResponse.json({body: {message: '장바구니를 불러오지 못했습니다.'}}, {status: 500});
+        requestCount += 1;
+
+        if (requestCount === 1) {
+          return HttpResponse.json({body: {message: '장바구니를 불러오지 못했습니다.'}}, {status: 500});
+        }
+
+        return HttpResponse.json({body: cartItems});
       })
     );
 
     render(<CartPage />);
 
-    expect(await screen.findByText('장바구니를 불러오지 못했습니다.')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('장바구니를 불러오지 못했습니다.');
+
+    await user.click(screen.getByRole('button', {name: '다시 시도'}));
+
+    await screen.findByText('현재 2종류의 상품이 담겨있습니다.');
+    expect(requestCount).toBe(2);
+  });
+
+  test('장바구니가 비어 있으면 안내 문구와 비활성 주문 버튼을 보여준다', async () => {
+    mockGetCartItems([]);
+
+    render(<CartPage />);
+
+    expect(await screen.findByText('장바구니에 담은 상품이 없습니다.')).toBeInTheDocument();
+    expect(screen.getByRole('button', {name: '주문 확인'})).toBeDisabled();
+    expect(screen.queryByText('현재 0종류의 상품이 담겨있습니다.')).not.toBeInTheDocument();
   });
 });

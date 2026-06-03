@@ -3,16 +3,20 @@ import styled from '@emotion/styled';
 import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
 
 import {CartItemList} from '../components/cart-item/CartItemList.js';
+import {CartEmptyView} from '../components/cart-page/CartEmptyView.js';
+import {CartErrorView} from '../components/cart-page/CartErrorView.js';
+import {CartLoadingView} from '../components/cart-page/CartLoadingView.js';
 import {CartOrderAction} from '../components/cart-page/CartOrderAction.js';
 import {CartPageHeader} from '../components/cart-page/CartPageHeader.js';
-import {Header} from '../components/layout/Header.js';
 import {PaymentSummary} from '../components/cart-page/PaymentSummary.js';
-import {getSelectedOrderAmount, getShippingFee, getTotalPrice} from '../domain/cartSelectors.js';
+import {Header} from '../components/layout/Header.js';
+
 import {useCart} from '../hooks/useCart.js';
+import {getSelectedOrderAmount, getShippingFee, getTotalPrice} from '../domain/cartSelectors.js';
 import type {CartState} from '../domain/types.js';
 
 export const CartPage = () => {
-  const {changeCartItemQuantity, removeCartItem, state, toggleAllCartItems, toggleCartItem} = useCart();
+  const {changeCartItemQuantity, loadCartItems, removeCartItem, state, toggleAllCartItems, toggleCartItem} = useCart();
   const status = getCartPageStatus(state);
   const isAllSelected = isEveryCartItemSelected(state);
   const selectedOrderAmount = getSelectedOrderAmount(state);
@@ -20,6 +24,7 @@ export const CartPage = () => {
   const totalPrice = getTotalPrice(state);
 
   const isPaymentButtonDisabled = totalPrice === 0;
+  const isOrderActionVisible = status === 'success' || status === 'empty';
 
   return (
     <>
@@ -27,8 +32,10 @@ export const CartPage = () => {
       <Main>
         <CartPageHeader itemCount={status === 'success' ? state.items.length : null} />
         <AsyncStateView
-          emptyMessage='장바구니에 담긴 상품이 없습니다.'
+          emptyFallback={<CartEmptyView />}
+          errorFallback={<CartErrorView errorMessage={state.errorMessage} onRetry={loadCartItems} />}
           errorMessage={state.errorMessage}
+          loadingFallback={<CartLoadingView />}
           status={status}
         >
           <CartItemList
@@ -42,7 +49,7 @@ export const CartPage = () => {
           />
           <PaymentSummary selectedOrderAmount={selectedOrderAmount} shippingFee={shippingFee} totalPrice={totalPrice} />
         </AsyncStateView>
-        {status === 'success' && <CartOrderAction disabled={isPaymentButtonDisabled} />}
+        {isOrderActionVisible && <CartOrderAction disabled={isPaymentButtonDisabled} />}
       </Main>
     </>
   );
@@ -64,6 +71,10 @@ function isEveryCartItemSelected(state: CartState) {
 }
 
 const Main = styled.main`
+  display: flex;
+  min-height: calc(100dvh - 64px);
+  box-sizing: border-box;
+  flex-direction: column;
   padding: 36px 24px;
   padding-bottom: calc(64px + 32px);
 `;
