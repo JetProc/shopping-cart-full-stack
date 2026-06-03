@@ -165,7 +165,7 @@ describe('useCart', () => {
       await result.current.changeCartItemQuantity('cart-1', 5);
     });
 
-    expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3000/carts/cart-1', {
+    expect(fetchMock).toHaveBeenLastCalledWith('https://paradi-easter.up.railway.app/carts/cart-1', {
       headers: {'Content-Type': 'application/json'},
       method: 'PATCH',
       body: JSON.stringify({quantity: 5}),
@@ -206,7 +206,7 @@ describe('useCart', () => {
       await result.current.removeCartItem('cart-1');
     });
 
-    expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3000/carts/cart-1', {
+    expect(fetchMock).toHaveBeenLastCalledWith('https://paradi-easter.up.railway.app/carts/cart-1', {
       headers: {'Content-Type': 'application/json'},
       method: 'DELETE',
     });

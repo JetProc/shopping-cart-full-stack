@@ -29,7 +29,7 @@ describe('cartApi', () => {
     fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
 
     await expect(getCartItems()).resolves.toEqual(cartItems);
-    expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/carts', {
+    expect(fetchMock).toHaveBeenCalledWith('https://paradi-easter.up.railway.app/carts', {
       headers: {'Content-Type': 'application/json'},
     });
   });
@@ -38,7 +38,7 @@ describe('cartApi', () => {
     fetchMock.mockResolvedValue(createResponse(200, {body: {id: 'cart-1', quantity: 3}}));
 
     await expect(updateCartItemQuantity('cart-1', 3)).resolves.toEqual({id: 'cart-1', quantity: 3});
-    expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/carts/cart-1', {
+    expect(fetchMock).toHaveBeenCalledWith('https://paradi-easter.up.railway.app/carts/cart-1', {
       headers: {'Content-Type': 'application/json'},
       method: 'PATCH',
       body: JSON.stringify({quantity: 3}),
@@ -49,7 +49,7 @@ describe('cartApi', () => {
     fetchMock.mockResolvedValue(createResponse(204));
 
     await expect(deleteCartItem('cart-1')).resolves.toBeUndefined();
-    expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/carts/cart-1', {
+    expect(fetchMock).toHaveBeenCalledWith('https://paradi-easter.up.railway.app/carts/cart-1', {
       headers: {'Content-Type': 'application/json'},
       method: 'DELETE',
     });

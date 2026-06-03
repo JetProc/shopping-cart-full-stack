@@ -1,6 +1,6 @@
 import type {CartItem, CartItemId} from '../domain/types.js';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://paradi-easter.up.railway.app';
 const DEFAULT_CART_API_ERROR_MESSAGE = '장바구니 요청에 실패했습니다.';
 
 type ApiResponse<T> = {
