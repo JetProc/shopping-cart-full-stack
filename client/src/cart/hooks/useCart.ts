@@ -2,7 +2,7 @@ import {useCallback, useEffect, useReducer} from 'react';
 
 import {getCartItems} from '../api/cartApi.js';
 import {cartReducer} from '../domain/cartReducer.js';
-import {loadSelectedCartItemIds} from '../domain/selectionStorage.js';
+import {loadSelectedCartItemIds, saveSelectedCartItemIds} from '../domain/selectionStorage.js';
 import type {CartItem, CartItemId, CartState} from '../domain/types.js';
 
 const initialCartState: CartState = {
@@ -32,9 +32,25 @@ export function useCart() {
     void loadCartItems();
   }, [loadCartItems]);
 
+  useEffect(() => {
+    if (state.status !== 'success') return;
+
+    saveSelectedCartItemIds(state.selectedIds);
+  }, [state.status, state.selectedIds]);
+
+  const toggleCartItem = useCallback((cartItemId: CartItemId) => {
+    dispatch({type: 'toggleCartItem', payload: {cartItemId}});
+  }, []);
+
+  const toggleAllCartItems = useCallback(() => {
+    dispatch({type: 'toggleAllCartItems'});
+  }, []);
+
   return {
     state,
     loadCartItems,
+    toggleCartItem,
+    toggleAllCartItems,
   };
 }
 

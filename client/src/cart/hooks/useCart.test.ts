@@ -1,4 +1,4 @@
-import {renderHook, waitFor} from '@testing-library/react';
+import {act, renderHook, waitFor} from '@testing-library/react';
 
 import {useCart} from './useCart.js';
 import type {CartItem} from '../domain/types.js';
@@ -82,5 +82,45 @@ describe('useCart', () => {
     });
 
     expect(result.current.state.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
+  });
+
+  test('개별 장바구니 항목 선택을 변경하고 저장한다', async () => {
+    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    act(() => {
+      result.current.toggleCartItem('cart-1');
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.selectedIds).toEqual(['cart-2']);
+    });
+
+    expect(localStorage.getItem('shopping-cart-selected-cart-item-ids')).toBe(JSON.stringify(['cart-2']));
+  });
+
+  test('전체 장바구니 항목 선택을 변경하고 저장한다', async () => {
+    fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    act(() => {
+      result.current.toggleAllCartItems();
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.selectedIds).toEqual([]);
+    });
+
+    expect(localStorage.getItem('shopping-cart-selected-cart-item-ids')).toBe(JSON.stringify([]));
   });
 });
