@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import {memo, useCallback} from 'react';
 
 import {Checkbox} from '../../design-system/components/Checkbox.js';
 import {NumericSpinner} from '../../design-system/components/NumericSpinner.js';
@@ -16,103 +15,55 @@ type CartItemRowProps = {
   onToggle: (cartItemId: CartItemId) => void;
 };
 
-export const CartItemRow = memo(function CartItemRow({
-  cartItem,
-  checked,
-  onChangeQuantity,
-  onDelete,
-  onToggle,
-}: CartItemRowProps) {
+export const CartItemRow = ({cartItem, checked, onChangeQuantity, onDelete, onToggle}: CartItemRowProps) => {
   const {id, productInfo, quantity} = cartItem;
 
-  const toggleCartItem = useCallback(() => {
-    onToggle(id);
-  }, [id, onToggle]);
+  const handleDeleteClick = () => {
+    const isDeleteConfirmed = window.confirm('상품을 삭제하시겠습니까?');
 
-  const deleteCartItem = useCallback(() => {
+    if (!isDeleteConfirmed) return;
+
     void onDelete(id);
-  }, [id, onDelete]);
-
-  const changeCartItemQuantity = useCallback(
-    (nextQuantity: CartItem['quantity']) => {
-      void onChangeQuantity(id, nextQuantity);
-    },
-    [id, onChangeQuantity]
-  );
+  };
 
   return (
     <Row>
-      <CartItemActions
-        checked={checked}
-        onDelete={deleteCartItem}
-        onToggle={toggleCartItem}
-        productName={productInfo.name}
-      />
+      <ActionArea>
+        <Checkbox aria-label='선택' checked={checked} onChange={() => onToggle(id)} />
+        <DeleteButton aria-label='삭제' onClick={handleDeleteClick} type='button'>
+          삭제
+        </DeleteButton>
+      </ActionArea>
       <Content>
-        <ProductSummary productInfo={productInfo} />
+        <ProductImage alt={productInfo.name} src={productInfo.imageUrl} />
         <ProductInfo>
-          <ProductText productInfo={productInfo} />
-          <CartItemQuantity onChange={changeCartItemQuantity} quantity={quantity} />
+          <TextGroup>
+            <Typo as='strong' variant='caption' weight='medium'>
+              {productInfo.name}
+            </Typo>
+            <Typo as='strong' color='black' variant='display' weight='bold'>
+              {productInfo.price.toLocaleString('ko-KR')}원
+            </Typo>
+          </TextGroup>
+          <NumericSpinner
+            max={99}
+            min={1}
+            onChange={(nextQuantity) => {
+              void onChangeQuantity(id, nextQuantity);
+            }}
+            value={quantity}
+          />
         </ProductInfo>
       </Content>
     </Row>
   );
-});
-
-type CartItemActionsProps = {
-  checked: boolean;
-  onDelete: () => void;
-  onToggle: () => void;
-  productName: string;
 };
-
-const CartItemActions = memo(function CartItemActions({
-  checked,
-  onDelete,
-  onToggle,
-  productName,
-}: CartItemActionsProps) {
-  return (
-    <ActionArea>
-      <Checkbox aria-label={`${productName} 선택`} checked={checked} onChange={onToggle} />
-      <DeleteButton aria-label={`${productName} 삭제`} onClick={onDelete} type='button'>
-        삭제
-      </DeleteButton>
-    </ActionArea>
-  );
-});
-
-const ProductSummary = memo(function ProductSummary({productInfo}: Pick<CartItem, 'productInfo'>) {
-  return <ProductImage alt={productInfo.name} src={productInfo.imageUrl} />;
-});
-
-const ProductText = memo(function ProductText({productInfo}: Pick<CartItem, 'productInfo'>) {
-  return (
-    <TextGroup>
-      <Typo as='strong' variant='caption' weight='medium'>
-        {productInfo.name}
-      </Typo>
-      <Typo as='strong' color='black' variant='display' weight='bold'>
-        {productInfo.price.toLocaleString('ko-KR')}원
-      </Typo>
-    </TextGroup>
-  );
-});
-
-type CartItemQuantityProps = {
-  onChange: (quantity: CartItem['quantity']) => void;
-  quantity: CartItem['quantity'];
-};
-
-const CartItemQuantity = memo(function CartItemQuantity({onChange, quantity}: CartItemQuantityProps) {
-  return <NumericSpinner max={99} min={1} onChange={onChange} value={quantity} />;
-});
 
 const Row = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing[12]};
-  padding: ${theme.spacing[12]} 0 ${theme.spacing[20]};
+  gap: 12px;
+  padding: 12px 0 20px;
   border-top: 1px solid ${theme.colors.gray100};
 `;
 
@@ -125,7 +76,7 @@ const ActionArea = styled.div`
 const Content = styled.div`
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr);
-  gap: ${theme.spacing[24]};
+  gap: 24px;
   align-items: center;
 `;
 
@@ -140,7 +91,7 @@ const ProductInfo = styled.div`
 const TextGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing[4]};
+  gap: 4px;
 `;
 
 const ProductImage = styled.img`
@@ -153,7 +104,7 @@ const ProductImage = styled.img`
 `;
 
 const DeleteButton = styled.button`
-  padding: ${theme.spacing[4]} ${theme.spacing[8]};
+  padding: 4px 8px;
   border: 1px solid ${theme.colors.blackAlpha10};
   border-radius: ${theme.radius[4]};
   background: ${theme.colors.white};
