@@ -2,7 +2,7 @@ import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {CartItemRow} from './CartItemRow.js';
-import type {CartItem} from '../domain/types.js';
+import type {CartItem} from '../../domain/types.js';
 
 const cartItem: CartItem = {
   id: 'cart-1',

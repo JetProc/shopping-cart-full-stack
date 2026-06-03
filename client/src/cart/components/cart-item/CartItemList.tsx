@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
-import {Checkbox} from '../../design-system/components/Checkbox.js';
+import {Checkbox} from '../../../design-system/components/Checkbox.js';
 import {CartItemRow} from './CartItemRow.js';
-import type {CartItem, CartItemId} from '../domain/types.js';
+import type {CartItem, CartItemId} from '../../domain/types.js';
 
 type CartItemListProps = {
   items: CartItem[];

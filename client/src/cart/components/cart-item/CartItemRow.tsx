@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 
-import {Checkbox} from '../../design-system/components/Checkbox.js';
-import {NumericSpinner} from '../../design-system/components/NumericSpinner.js';
-import {Typo} from '../../design-system/components/Typo.js';
-import {theme} from '../../design-system/foundation/theme.js';
-import {fontWeights, typography} from '../../design-system/foundation/typography.js';
-import type {CartItem, CartItemId} from '../domain/types.js';
+import {Checkbox} from '../../../design-system/components/Checkbox.js';
+import {NumericSpinner} from '../../../design-system/components/NumericSpinner.js';
+import {Typo} from '../../../design-system/components/Typo.js';
+import {theme} from '../../../design-system/foundation/theme.js';
+import {fontWeights, typography} from '../../../design-system/foundation/typography.js';
+import type {CartItem, CartItemId} from '../../domain/types.js';
 
 type CartItemRowProps = {
   cartItem: CartItem;

@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
 
-import {CartItemList} from '../components/CartItemList.js';
+import {CartItemList} from '../components/cart-item/CartItemList.js';
 import {CartOrderAction} from '../components/CartOrderAction.js';
 import {CartPageHeader} from '../components/CartPageHeader.js';
 import {Header} from '../components/Header.js';
