@@ -1,7 +1,15 @@
 import '@testing-library/jest-dom';
-import {TextDecoder, TextEncoder} from 'node:util';
 
-Object.assign(globalThis, {
-  TextDecoder,
-  TextEncoder,
+import {mockServer} from './test/mockServer.js';
+
+beforeAll(() => {
+  mockServer.listen({onUnhandledRequest: 'error'});
+});
+
+afterEach(() => {
+  mockServer.resetHandlers();
+});
+
+afterAll(() => {
+  mockServer.close();
 });
