@@ -31,8 +31,10 @@ describe('cartReducer', () => {
     expect(result.errorMessage).toBe('');
   });
 
-  test('fetchSuccess는 장바구니 상품과 선택 id를 저장한다', () => {
-    const result = cartReducer(cartState, {
+  test('fetchSuccess는 장바구니 상품과 선택 id를 저장하고 에러 메시지를 초기화한다', () => {
+    const state = {...cartState, errorMessage: '이전 에러'};
+
+    const result = cartReducer(state, {
       type: 'fetchSuccess',
       payload: {items: cartItems, selectedIds: ['cart-1', 'cart-2']},
     });
@@ -40,6 +42,7 @@ describe('cartReducer', () => {
     expect(result.status).toBe('success');
     expect(result.items).toEqual(cartItems);
     expect(result.selectedIds).toEqual(['cart-1', 'cart-2']);
+    expect(result.errorMessage).toBe('');
   });
 
   test('fetchError는 에러 상태와 에러 메시지를 저장한다', () => {

@@ -56,12 +56,26 @@ describe('cartApi', () => {
   });
 
   test('에러 응답 메시지를 Error로 전달한다', async () => {
-    fetchMock.mockResolvedValue(
-      createResponse(400, {body: {message: '수량은 1 이상 99 이하의 정수여야 합니다.'}})
-    );
+    fetchMock.mockResolvedValue(createResponse(400, {body: {message: '수량은 1 이상 99 이하의 정수여야 합니다.'}}));
 
-    await expect(updateCartItemQuantity('cart-1', 100)).rejects.toThrow(
-      '수량은 1 이상 99 이하의 정수여야 합니다.'
-    );
+    await expect(updateCartItemQuantity('cart-1', 100)).rejects.toThrow('수량은 1 이상 99 이하의 정수여야 합니다.');
+  });
+
+  test('에러 응답 메시지가 없으면 기본 Error 메시지를 전달한다', async () => {
+    fetchMock.mockResolvedValue(createResponse(500, {body: {}}));
+
+    await expect(getCartItems()).rejects.toThrow('장바구니 요청에 실패했습니다.');
+  });
+
+  test('에러 응답을 파싱할 수 없으면 기본 Error 메시지를 전달한다', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => {
+        throw new Error('Invalid JSON');
+      },
+    } as unknown as Response);
+
+    await expect(getCartItems()).rejects.toThrow('장바구니 요청에 실패했습니다.');
   });
 });

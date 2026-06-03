@@ -84,6 +84,32 @@ describe('useCart', () => {
     expect(result.current.state.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
   });
 
+  test('장바구니 조회 실패 후 다시 조회하면 성공 상태로 복구한다', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createResponse(500, {body: {message: '장바구니를 불러오지 못했습니다.'}}))
+      .mockResolvedValueOnce(createResponse(200, {body: cartItems}));
+
+    const {result} = renderHook(() => useCart());
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('error');
+    });
+
+    expect(result.current.state.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
+
+    await act(async () => {
+      await result.current.loadCartItems();
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe('success');
+    });
+
+    expect(result.current.state.items).toEqual(cartItems);
+    expect(result.current.state.selectedIds).toEqual(['cart-1', 'cart-2']);
+    expect(result.current.state.errorMessage).toBe('');
+  });
+
   test('개별 장바구니 항목 선택을 변경하고 저장한다', async () => {
     fetchMock.mockResolvedValue(createResponse(200, {body: cartItems}));
 
