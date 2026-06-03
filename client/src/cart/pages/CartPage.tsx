@@ -5,7 +5,7 @@ import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
 import {CartItemList} from '../components/cart-item/CartItemList.js';
 import {CartOrderAction} from '../components/CartOrderAction.js';
 import {CartPageHeader} from '../components/CartPageHeader.js';
-import {Header} from '../components/Header.js';
+import {Header} from '../components/layout/Header.js';
 import {PaymentSummary} from '../components/PaymentSummary.js';
 import {getSelectedOrderAmount, getShippingFee, getTotalPrice} from '../domain/cartSelectors.js';
 import {useCart} from '../hooks/useCart.js';

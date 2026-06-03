@@ -1,6 +1,6 @@
 import {Navigate, Route, Routes} from 'react-router-dom';
 
-import {PhoneView} from './cart/components/PhoneView.js';
+import {PhoneView} from './cart/components/layout/PhoneView.js';
 import {CartPage} from './cart/pages/CartPage.js';
 
 export const App = () => {
