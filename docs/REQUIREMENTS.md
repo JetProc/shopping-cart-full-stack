@@ -102,3 +102,9 @@
 - [x] 스타일링에는 Emotion을 사용한다.
 - [x] 페이지 전환에는 React Router를 사용한다.
 - [x] 명시된 라이브러리 외에는 직접 구현한다.
+
+#### 환경 변수
+- 로컬 개발에서는 기본적으로 `http://localhost:3000` 서버에 연결한다.
+- 로컬 개발 중 다른 서버를 사용하려면 `client/.env`에 `VITE_API_BASE_URL`을 설정한다.
+- production build에서는 Railway 서버(`https://paradi-easter.up.railway.app`)에 연결한다.
+- 공유 가능한 예시는 `client/.env.example`에 작성한다.
