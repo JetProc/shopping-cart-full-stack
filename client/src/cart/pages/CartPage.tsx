@@ -3,10 +3,10 @@ import styled from '@emotion/styled';
 import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
 
 import {CartItemList} from '../components/cart-item/CartItemList.js';
-import {CartOrderAction} from '../components/CartOrderAction.js';
-import {CartPageHeader} from '../components/CartPageHeader.js';
+import {CartOrderAction} from '../components/cart-page/CartOrderAction.js';
+import {CartPageHeader} from '../components/cart-page/CartPageHeader.js';
 import {Header} from '../components/layout/Header.js';
-import {PaymentSummary} from '../components/PaymentSummary.js';
+import {PaymentSummary} from '../components/cart-page/PaymentSummary.js';
 import {getSelectedOrderAmount, getShippingFee, getTotalPrice} from '../domain/cartSelectors.js';
 import {useCart} from '../hooks/useCart.js';
 import type {CartState} from '../domain/types.js';
