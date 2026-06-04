@@ -2,8 +2,7 @@ import styled from '@emotion/styled';
 import type {ElementType, HTMLAttributes, ReactNode} from 'react';
 
 import {theme} from '../foundation/theme.js';
-import {fontWeights, typography} from '../foundation/typography.js';
-import type {FontWeight, TypographyVariant} from '../foundation/typography.js';
+import {fontWeights, typography, type FontWeight, type TypographyVariant} from '../foundation/typography.js';
 
 type ColorToken = keyof typeof theme.colors;
 

@@ -1,29 +1,24 @@
 import styled from '@emotion/styled';
 import {useNavigate} from 'react-router-dom';
 
-import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
-import {Button} from '../../design-system/components/Button.js';
-import {FixedBottomAction} from '../../design-system/components/FixedBottomAction.js';
-import {theme} from '../../design-system/foundation/theme.js';
-import {fontWeights, typography} from '../../design-system/foundation/typography.js';
-import backArrowIconUrl from '../../design-system/assets/icons/back-arrow.png';
+import {backArrowIconUrl} from '../../design-system/assets/icons/index.js';
+import {AsyncStateView, Button, FixedBottomAction, fontWeights, theme, typography} from '../../design-system/index.js';
 
 import {CartErrorView} from '../components/cart-page/CartErrorView.js';
 import {CartLoadingView} from '../components/cart-page/CartLoadingView.js';
 import {useCart} from '../hooks/useCart.js';
 import {getSelectedItemCount, getSelectedQuantity, getTotalPrice} from '../domain/cartSelectors.js';
 import {formatPrice} from '../domain/priceFormatter.js';
+import type {CartState} from '../domain/types.js';
 
 export const OrderConfirmPage = () => {
   const navigate = useNavigate();
   const {loadCartItems, state} = useCart();
-  const status = state.status === 'success' ? 'success' : state.status === 'error' ? 'error' : 'loading';
+  const status = getOrderConfirmPageStatus(state.status);
 
   const selectedItemCount = getSelectedItemCount(state);
   const selectedQuantity = getSelectedQuantity(state);
   const totalPrice = getTotalPrice(state);
-  const orderDescription = `총 ${selectedItemCount}종류의 상품 ${selectedQuantity}개를 주문합니다.`;
-  const totalPriceText = `${formatPrice(totalPrice)}원`;
 
   return (
     <>
@@ -41,12 +36,12 @@ export const OrderConfirmPage = () => {
           <Summary>
             <Title>주문 확인</Title>
             <Description>
-              {orderDescription}
+              총 {selectedItemCount}종류의 상품 {selectedQuantity}개를 주문합니다.
               <br />
               최종 결제 금액을 확인해 주세요.
             </Description>
             <TotalLabel>총 결제 금액</TotalLabel>
-            <TotalPrice>{totalPriceText}</TotalPrice>
+            <TotalPrice>{formatPrice(totalPrice)}원</TotalPrice>
           </Summary>
         </AsyncStateView>
         <FixedBottomAction>
@@ -56,6 +51,13 @@ export const OrderConfirmPage = () => {
     </>
   );
 };
+
+function getOrderConfirmPageStatus(status: CartState['status']) {
+  if (status === 'success') return 'success';
+  if (status === 'error') return 'error';
+
+  return 'loading';
+}
 
 const Header = styled.header`
   display: flex;
