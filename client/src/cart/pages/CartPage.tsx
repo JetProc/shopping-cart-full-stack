@@ -60,12 +60,9 @@ export const CartPage = () => {
 };
 
 function getCartPageStatus(state: CartState) {
-  if (state.status === 'idle') return 'loading';
-  if (state.status === 'loading') return 'loading';
-  if (state.status === 'error') return 'error';
   if (state.status === 'success' && state.items.length === 0) return 'empty';
 
-  return 'success';
+  return state.status;
 }
 
 function isEveryCartItemSelected(state: CartState) {

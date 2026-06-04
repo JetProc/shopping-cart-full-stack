@@ -9,12 +9,10 @@ import {CartLoadingView} from '../components/cart-page/CartLoadingView.js';
 import {useCart} from '../hooks/useCart.js';
 import {getSelectedItemCount, getSelectedQuantity, getTotalPrice} from '../domain/cartSelectors.js';
 import {formatPrice} from '../domain/priceFormatter.js';
-import type {CartState} from '../domain/types.js';
 
 export const OrderConfirmPage = () => {
   const navigate = useNavigate();
   const {loadCartItems, state} = useCart();
-  const status = getOrderConfirmPageStatus(state.status);
 
   const selectedItemCount = getSelectedItemCount(state);
   const selectedQuantity = getSelectedQuantity(state);
@@ -31,7 +29,7 @@ export const OrderConfirmPage = () => {
         <AsyncStateView
           errorFallback={<CartErrorView errorMessage={state.errorMessage} onRetry={loadCartItems} />}
           loadingFallback={<CartLoadingView />}
-          status={status}
+          status={state.status}
         >
           <Summary>
             <Title>주문 확인</Title>
@@ -51,13 +49,6 @@ export const OrderConfirmPage = () => {
     </>
   );
 };
-
-function getOrderConfirmPageStatus(status: CartState['status']) {
-  if (status === 'success') return 'success';
-  if (status === 'error') return 'error';
-
-  return 'loading';
-}
 
 const Header = styled.header`
   display: flex;

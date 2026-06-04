@@ -6,7 +6,7 @@ import {loadSelectedCartItemIds, saveSelectedCartItemIds} from '../domain/select
 import type {CartItem, CartItemId, CartState} from '../domain/types.js';
 
 const initialCartState: CartState = {
-  status: 'idle',
+  status: 'loading',
   items: [],
   selectedIds: [],
   errorMessage: '',

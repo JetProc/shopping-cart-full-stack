@@ -1,4 +1,4 @@
-export type CartStatus = 'idle' | 'loading' | 'success' | 'error';
+export type CartStatus = 'loading' | 'success' | 'error';
 
 export type ProductId = string;
 

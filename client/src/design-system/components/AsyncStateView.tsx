@@ -3,7 +3,7 @@ import type {ReactNode} from 'react';
 
 import {theme} from '../foundation/theme.js';
 
-type AsyncStatus = 'idle' | 'loading' | 'error' | 'empty' | 'success';
+type AsyncStatus = 'loading' | 'error' | 'empty' | 'success';
 
 type AsyncStateViewProps = {
   children: ReactNode;
