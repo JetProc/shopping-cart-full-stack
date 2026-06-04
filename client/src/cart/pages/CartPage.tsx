@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import {useNavigate} from 'react-router-dom';
 
-import {AsyncStateView} from '../../design-system/components/AsyncStateView.js';
+import {AsyncStateView} from '../../design-system/index.js';
 
 import {CartItemList} from '../components/cart-item/CartItemList.js';
 import {CartEmptyView} from '../components/cart-page/CartEmptyView.js';
