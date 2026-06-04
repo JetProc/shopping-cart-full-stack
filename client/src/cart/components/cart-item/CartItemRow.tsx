@@ -1,10 +1,6 @@
 import styled from '@emotion/styled';
 
-import {Checkbox} from '../../../design-system/components/Checkbox.js';
-import {NumericSpinner} from '../../../design-system/components/NumericSpinner.js';
-import {Typo} from '../../../design-system/components/Typo.js';
-import {theme} from '../../../design-system/foundation/theme.js';
-import {fontWeights, typography} from '../../../design-system/foundation/typography.js';
+import {Checkbox, NumericSpinner, Typo, fontWeights, theme, typography} from '../../../design-system/index.js';
 import {formatPrice} from '../../domain/priceFormatter.js';
 import type {CartItem, CartItemId} from '../../domain/types.js';
 

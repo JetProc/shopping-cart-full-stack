@@ -1,8 +1,7 @@
 import styled from '@emotion/styled';
 import {memo} from 'react';
 
-import {Typo} from '../../../design-system/components/Typo.js';
-import {theme} from '../../../design-system/foundation/theme.js';
+import {Typo, theme} from '../../../design-system/index.js';
 
 type HeaderProps = {
   title: string;

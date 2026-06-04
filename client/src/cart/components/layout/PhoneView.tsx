@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import type {ReactNode} from 'react';
 
-import {theme} from '../../../design-system/foundation/theme.js';
+import {theme} from '../../../design-system/index.js';
 
 type PhoneViewProps = {
   children: ReactNode;
