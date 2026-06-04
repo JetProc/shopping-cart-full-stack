@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import {Spinner} from '../../../design-system/components/Spinner.js';
+import {Spinner} from '../../../design-system/index.js';
 
 export const CartLoadingView = () => {
   return (

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import {Typo} from '../../../design-system/components/Typo.js';
+import {Typo} from '../../../design-system/index.js';
 
 export const CartEmptyView = () => {
   return (

@@ -1,5 +1,4 @@
-import {Button} from '../../../design-system/components/Button.js';
-import {FixedBottomAction} from '../../../design-system/components/FixedBottomAction.js';
+import {Button, FixedBottomAction} from '../../../design-system/index.js';
 
 type CartOrderActionProps = {
   disabled: boolean;

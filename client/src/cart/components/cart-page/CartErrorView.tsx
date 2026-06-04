@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 
-import {Button} from '../../../design-system/components/Button.js';
-import {Typo} from '../../../design-system/components/Typo.js';
+import {Button, Typo} from '../../../design-system/index.js';
 
 type CartErrorViewProps = {
   errorMessage: string;
