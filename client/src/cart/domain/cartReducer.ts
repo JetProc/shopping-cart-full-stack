@@ -5,7 +5,7 @@ type FetchErrorPayload = Pick<CartState, 'errorMessage'>;
 type CartItemIdPayload = {cartItemId: CartItemId};
 type UpdateCartItemQuantityPayload = CartItemIdPayload & {quantity: CartItem['quantity']};
 
-export type CartAction =
+type CartAction =
   | {type: 'fetchStart'}
   | {type: 'fetchSuccess'; payload: FetchSuccessPayload}
   | {type: 'fetchError'; payload: FetchErrorPayload}

@@ -16,5 +16,3 @@ export const theme = {
     999: '999px',
   },
 } as const;
-
-export type AppTheme = typeof theme;

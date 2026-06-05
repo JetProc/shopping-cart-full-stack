@@ -36,7 +36,6 @@ export const CartPage = () => {
         <AsyncStateView
           emptyFallback={<CartEmptyView />}
           errorFallback={<CartErrorView errorMessage={state.errorMessage} onRetry={loadCartItems} />}
-          errorMessage={state.errorMessage}
           loadingFallback={<CartLoadingView />}
           status={status}
         >
