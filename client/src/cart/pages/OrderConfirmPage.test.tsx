@@ -4,6 +4,7 @@ import {http, HttpResponse} from 'msw';
 import {MemoryRouter, Route, Routes} from 'react-router-dom';
 
 import {OrderConfirmPage} from './OrderConfirmPage.js';
+import {CartProvider} from '../hooks/useCart.js';
 import type {CartItem} from '../domain/types.js';
 import {mockServer} from '../../test/mockServer.js';
 
@@ -38,7 +39,9 @@ function mockGetCartItems(items: CartItem[]) {
 function renderOrderConfirmPage() {
   return render(
     <MemoryRouter>
-      <OrderConfirmPage />
+      <CartProvider>
+        <OrderConfirmPage />
+      </CartProvider>
     </MemoryRouter>
   );
 }
@@ -46,10 +49,12 @@ function renderOrderConfirmPage() {
 function renderOrderConfirmRoutes() {
   return render(
     <MemoryRouter initialEntries={['/order-confirm']}>
-      <Routes>
-        <Route path='/cart' element={<div>장바구니 화면</div>} />
-        <Route path='/order-confirm' element={<OrderConfirmPage />} />
-      </Routes>
+      <CartProvider>
+        <Routes>
+          <Route path='/cart' element={<div>장바구니 화면</div>} />
+          <Route path='/order-confirm' element={<OrderConfirmPage />} />
+        </Routes>
+      </CartProvider>
     </MemoryRouter>
   );
 }

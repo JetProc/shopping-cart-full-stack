@@ -5,6 +5,7 @@ import {MemoryRouter, Route, Routes} from 'react-router-dom';
 
 import {CartPage} from './CartPage.js';
 import {OrderConfirmPage} from './OrderConfirmPage.js';
+import {CartProvider} from '../hooks/useCart.js';
 import type {CartItem} from '../domain/types.js';
 import {mockServer} from '../../test/mockServer.js';
 
@@ -38,7 +39,9 @@ function mockGetCartItems(items: CartItem[]) {
 function renderCartPage() {
   return render(
     <MemoryRouter>
-      <CartPage />
+      <CartProvider>
+        <CartPage />
+      </CartProvider>
     </MemoryRouter>
   );
 }
@@ -46,10 +49,12 @@ function renderCartPage() {
 function renderCartRoutes() {
   return render(
     <MemoryRouter initialEntries={['/cart']}>
-      <Routes>
-        <Route path='/cart' element={<CartPage />} />
-        <Route path='/order-confirm' element={<OrderConfirmPage />} />
-      </Routes>
+      <CartProvider>
+        <Routes>
+          <Route path='/cart' element={<CartPage />} />
+          <Route path='/order-confirm' element={<OrderConfirmPage />} />
+        </Routes>
+      </CartProvider>
     </MemoryRouter>
   );
 }
@@ -144,8 +149,15 @@ describe('CartPage', () => {
 
   test('주문 확인 버튼을 누르면 주문 확인 페이지로 이동한다', async () => {
     const user = userEvent.setup();
+    let requestCount = 0;
 
-    mockGetCartItems(cartItems);
+    mockServer.use(
+      http.get(`${API_BASE_URL}/carts`, () => {
+        requestCount += 1;
+
+        return HttpResponse.json({body: cartItems});
+      })
+    );
 
     renderCartRoutes();
 
@@ -158,5 +170,6 @@ describe('CartPage', () => {
     expect(screen.getByText(/최종 결제 금액을 확인해 주세요/)).toBeInTheDocument();
     expect(screen.getByText('120,000원')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: '결제하기'})).toBeDisabled();
+    expect(requestCount).toBe(1);
   });
 });

@@ -1,7 +1,7 @@
 import {act, renderHook, waitFor} from '@testing-library/react';
 import {http, HttpResponse} from 'msw';
 
-import {useCart} from './useCart.js';
+import {CartProvider, useCart} from './useCart.js';
 import type {CartItem} from '../domain/types.js';
 import {mockServer} from '../../test/mockServer.js';
 
@@ -32,11 +32,15 @@ function mockGetCartItems(items: CartItem[]) {
   );
 }
 
+function renderUseCart() {
+  return renderHook(() => useCart(), {wrapper: CartProvider});
+}
+
 describe('useCart', () => {
   test('저장된 선택 상태가 없으면 장바구니 조회 후 전체 선택한다', async () => {
     mockGetCartItems(cartItems);
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -50,7 +54,7 @@ describe('useCart', () => {
     localStorage.setItem('shopping-cart-selected-cart-item-ids', JSON.stringify([]));
     mockGetCartItems(cartItems);
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -63,7 +67,7 @@ describe('useCart', () => {
     localStorage.setItem('shopping-cart-selected-cart-item-ids', JSON.stringify(['cart-2', 'cart-999']));
     mockGetCartItems(cartItems);
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -79,7 +83,7 @@ describe('useCart', () => {
       })
     );
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('error');
@@ -103,7 +107,7 @@ describe('useCart', () => {
       })
     );
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('error');
@@ -127,7 +131,7 @@ describe('useCart', () => {
   test('개별 장바구니 항목 선택을 변경하고 저장한다', async () => {
     mockGetCartItems(cartItems);
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -147,7 +151,7 @@ describe('useCart', () => {
   test('전체 장바구니 항목 선택을 변경하고 저장한다', async () => {
     mockGetCartItems(cartItems);
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -178,7 +182,7 @@ describe('useCart', () => {
       })
     );
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -203,7 +207,7 @@ describe('useCart', () => {
       })
     );
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -231,7 +235,7 @@ describe('useCart', () => {
       })
     );
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
@@ -256,7 +260,7 @@ describe('useCart', () => {
       })
     );
 
-    const {result} = renderHook(() => useCart());
+    const {result} = renderUseCart();
 
     await waitFor(() => {
       expect(result.current.state.status).toBe('success');
