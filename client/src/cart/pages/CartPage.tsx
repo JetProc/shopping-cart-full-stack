@@ -18,9 +18,8 @@ import type {CartState} from '../domain/types.js';
 
 export const CartPage = () => {
   const navigate = useNavigate();
-  const {changeCartItemQuantity, loadCartItems, removeCartItem, state, toggleAllCartItems, toggleCartItem} = useCart();
+  const {changeCartItemQuantity, changeSelectedCartItemIds, loadCartItems, removeCartItem, state} = useCart();
   const status = getCartPageStatus(state);
-  const isAllSelected = isEveryCartItemSelected(state);
   const selectedOrderAmount = getSelectedOrderAmount(state);
   const shippingFee = getShippingFee(state);
   const totalPrice = getTotalPrice(state);
@@ -42,11 +41,9 @@ export const CartPage = () => {
           <CartItemList
             items={state.items}
             selectedIds={state.selectedIds}
-            isAllSelected={isAllSelected}
             onChangeQuantity={changeCartItemQuantity}
+            onChangeSelectedIds={changeSelectedCartItemIds}
             onDelete={removeCartItem}
-            onToggleAll={toggleAllCartItems}
-            onToggleItem={toggleCartItem}
           />
           <PaymentSummary selectedOrderAmount={selectedOrderAmount} shippingFee={shippingFee} totalPrice={totalPrice} />
         </AsyncStateView>
@@ -62,12 +59,6 @@ function getCartPageStatus(state: CartState) {
   if (state.status === 'success' && state.items.length === 0) return 'empty';
 
   return state.status;
-}
-
-function isEveryCartItemSelected(state: CartState) {
-  if (state.items.length === 0) return false;
-
-  return state.items.every((cartItem) => state.selectedIds.includes(cartItem.id));
 }
 
 const Main = styled.main`

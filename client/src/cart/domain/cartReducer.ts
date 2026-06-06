@@ -3,14 +3,14 @@ import type {CartItem, CartItemId, CartState} from './types.js';
 type FetchSuccessPayload = Pick<CartState, 'items' | 'selectedIds'>;
 type FetchErrorPayload = Pick<CartState, 'errorMessage'>;
 type CartItemIdPayload = {cartItemId: CartItemId};
+type SelectedIdsPayload = Pick<CartState, 'selectedIds'>;
 type UpdateCartItemQuantityPayload = CartItemIdPayload & {quantity: CartItem['quantity']};
 
 type CartAction =
   | {type: 'fetchStart'}
   | {type: 'fetchSuccess'; payload: FetchSuccessPayload}
   | {type: 'fetchError'; payload: FetchErrorPayload}
-  | {type: 'toggleCartItem'; payload: CartItemIdPayload}
-  | {type: 'toggleAllCartItems'}
+  | {type: 'changeSelectedCartItemIds'; payload: SelectedIdsPayload}
   | {type: 'updateCartItemQuantity'; payload: UpdateCartItemQuantityPayload}
   | {type: 'deleteCartItem'; payload: CartItemIdPayload};
 
@@ -25,11 +25,8 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     case 'fetchError': {
       return failFetchingCart(state, action.payload);
     }
-    case 'toggleCartItem': {
-      return toggleCartItem(state, action.payload.cartItemId);
-    }
-    case 'toggleAllCartItems': {
-      return toggleAllCartItems(state);
+    case 'changeSelectedCartItemIds': {
+      return changeSelectedCartItemIds(state, action.payload);
     }
     case 'updateCartItemQuantity': {
       return updateCartItemQuantity(state, action.payload);
@@ -70,36 +67,11 @@ function failFetchingCart(state: CartState, payload: FetchErrorPayload): CartSta
 
 // Selection state functions
 
-function toggleCartItem(state: CartState, cartItemId: CartItemId): CartState {
-  const isAlreadySelected = state.selectedIds.includes(cartItemId);
-
-  // 이미 해당 상품이 체크되어 있다면
-  if (isAlreadySelected) {
-    const selectedIds = state.selectedIds.filter((selectedId) => selectedId !== cartItemId);
-
-    return {
-      ...state,
-      selectedIds,
-    };
-  }
-
-  // 체크해야 한다면
+function changeSelectedCartItemIds(state: CartState, payload: SelectedIdsPayload): CartState {
   return {
     ...state,
-    selectedIds: [...state.selectedIds, cartItemId],
+    selectedIds: payload.selectedIds,
   };
-}
-
-function toggleAllCartItems(state: CartState): CartState {
-  const cartItemIds = state.items.map((cartItem) => cartItem.id);
-
-  const isAllSelected = cartItemIds.every((cartItemId) => state.selectedIds.includes(cartItemId));
-
-  if (isAllSelected) {
-    return {...state, selectedIds: []};
-  }
-
-  return {...state, selectedIds: cartItemIds};
 }
 
 // Item state functions

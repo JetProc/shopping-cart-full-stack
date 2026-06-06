@@ -7,26 +7,40 @@ import type {CartItem, CartItemId} from '../../domain/types.js';
 type CartItemListProps = {
   items: CartItem[];
   selectedIds: CartItemId[];
-  isAllSelected: boolean;
   onChangeQuantity: (cartItemId: CartItemId, quantity: CartItem['quantity']) => void | Promise<void>;
+  onChangeSelectedIds: (selectedIds: CartItemId[]) => void;
   onDelete: (cartItemId: CartItemId) => void | Promise<void>;
-  onToggleAll: () => void;
-  onToggleItem: (cartItemId: CartItemId) => void;
 };
 
 export const CartItemList = ({
   items,
   selectedIds,
-  isAllSelected,
   onChangeQuantity,
+  onChangeSelectedIds,
   onDelete,
-  onToggleAll,
-  onToggleItem,
 }: CartItemListProps) => {
+  const cartItemIds = items.map((cartItem) => cartItem.id);
+  const isAllSelected = items.length > 0 && cartItemIds.every((cartItemId) => selectedIds.includes(cartItemId));
+
+  const handleToggleAll = () => {
+    const nextSelectedIds = isAllSelected ? [] : cartItemIds;
+
+    onChangeSelectedIds(nextSelectedIds);
+  };
+
+  const handleToggleItem = (cartItemId: CartItemId) => {
+    const isSelected = selectedIds.includes(cartItemId);
+    const nextSelectedIds = isSelected
+      ? selectedIds.filter((selectedId) => selectedId !== cartItemId)
+      : [...selectedIds, cartItemId];
+
+    onChangeSelectedIds(nextSelectedIds);
+  };
+
   return (
     <>
       <SelectAllArea>
-        <Checkbox checked={isAllSelected} label='전체 선택' onChange={onToggleAll} />
+        <Checkbox checked={isAllSelected} label='전체 선택' onChange={handleToggleAll} />
       </SelectAllArea>
       <ItemListArea>
         {items.map((cartItem) => (
@@ -36,7 +50,7 @@ export const CartItemList = ({
             checked={selectedIds.includes(cartItem.id)}
             onChangeQuantity={onChangeQuantity}
             onDelete={onDelete}
-            onToggle={onToggleItem}
+            onToggle={handleToggleItem}
           />
         ))}
       </ItemListArea>

@@ -15,8 +15,7 @@ const initialCartState: CartState = {
 export type CartContextValue = {
   state: CartState;
   loadCartItems: () => Promise<void>;
-  toggleCartItem: (cartItemId: CartItemId) => void;
-  toggleAllCartItems: () => void;
+  changeSelectedCartItemIds: (selectedIds: CartItemId[]) => void;
   changeCartItemQuantity: (cartItemId: CartItemId, quantity: CartItem['quantity']) => Promise<void>;
   removeCartItem: (cartItemId: CartItemId) => Promise<void>;
 };
@@ -48,12 +47,8 @@ export function useCartState(): CartContextValue {
     saveSelectedCartItemIds(state.selectedIds);
   }, [state.status, state.selectedIds]);
 
-  const toggleCartItem = useCallback((cartItemId: CartItemId) => {
-    dispatch({type: 'toggleCartItem', payload: {cartItemId}});
-  }, []);
-
-  const toggleAllCartItems = useCallback(() => {
-    dispatch({type: 'toggleAllCartItems'});
+  const changeSelectedCartItemIds = useCallback((selectedIds: CartItemId[]) => {
+    dispatch({type: 'changeSelectedCartItemIds', payload: {selectedIds}});
   }, []);
 
   const changeCartItemQuantity = useCallback(async (cartItemId: CartItemId, quantity: CartItem['quantity']) => {
@@ -85,8 +80,7 @@ export function useCartState(): CartContextValue {
   return {
     state,
     loadCartItems,
-    toggleCartItem,
-    toggleAllCartItems,
+    changeSelectedCartItemIds,
     changeCartItemQuantity,
     removeCartItem,
   };
