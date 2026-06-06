@@ -37,6 +37,14 @@ export const CartItemList = ({
     onChangeSelectedIds(nextSelectedIds);
   };
 
+  const handleDelete = (cartItemId: CartItemId) => {
+    const isDeleteConfirmed = window.confirm('상품을 삭제하시겠습니까?');
+
+    if (!isDeleteConfirmed) return;
+
+    void onDelete(cartItemId);
+  };
+
   return (
     <>
       <SelectAllArea>
@@ -49,7 +57,7 @@ export const CartItemList = ({
             cartItem={cartItem}
             checked={selectedIds.includes(cartItem.id)}
             onChangeQuantity={onChangeQuantity}
-            onDelete={onDelete}
+            onDelete={handleDelete}
             onToggle={handleToggleItem}
           />
         ))}

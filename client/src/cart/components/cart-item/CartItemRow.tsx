@@ -15,19 +15,17 @@ type CartItemRowProps = {
 export const CartItemRow = ({cartItem, checked, onChangeQuantity, onDelete, onToggle}: CartItemRowProps) => {
   const {id, productInfo, quantity} = cartItem;
 
-  const handleDeleteClick = () => {
-    const isDeleteConfirmed = window.confirm('상품을 삭제하시겠습니까?');
-
-    if (!isDeleteConfirmed) return;
-
-    void onDelete(id);
-  };
-
   return (
     <Row>
       <ActionArea>
         <Checkbox aria-label='선택' checked={checked} onChange={() => onToggle(id)} />
-        <DeleteButton aria-label='삭제' onClick={handleDeleteClick} type='button'>
+        <DeleteButton
+          aria-label='삭제'
+          onClick={() => {
+            void onDelete(id);
+          }}
+          type='button'
+        >
           삭제
         </DeleteButton>
       </ActionArea>

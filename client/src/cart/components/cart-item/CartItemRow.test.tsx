@@ -20,7 +20,6 @@ const defaultProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.restoreAllMocks();
 });
 
 describe('CartItemRow', () => {
@@ -56,31 +55,14 @@ describe('CartItemRow', () => {
     expect(onChangeQuantity).toHaveBeenNthCalledWith(2, 'cart-1', 1);
   });
 
-  test('삭제를 확인하면 장바구니 항목 삭제를 요청한다', async () => {
+  test('삭제 버튼을 누르면 장바구니 항목 삭제를 요청한다', async () => {
     const user = userEvent.setup();
     const onDelete = jest.fn();
-
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
 
     render(<CartItemRow {...defaultProps} onDelete={onDelete} />);
 
     await user.click(screen.getByRole('button', {name: '삭제'}));
 
-    expect(window.confirm).toHaveBeenCalledWith('상품을 삭제하시겠습니까?');
     expect(onDelete).toHaveBeenCalledWith('cart-1');
-  });
-
-  test('삭제를 취소하면 장바구니 항목 삭제를 요청하지 않는다', async () => {
-    const user = userEvent.setup();
-    const onDelete = jest.fn();
-
-    jest.spyOn(window, 'confirm').mockReturnValue(false);
-
-    render(<CartItemRow {...defaultProps} onDelete={onDelete} />);
-
-    await user.click(screen.getByRole('button', {name: '삭제'}));
-
-    expect(window.confirm).toHaveBeenCalledWith('상품을 삭제하시겠습니까?');
-    expect(onDelete).not.toHaveBeenCalled();
   });
 });
