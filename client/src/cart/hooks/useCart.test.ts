@@ -128,7 +128,7 @@ describe('useCart', () => {
     expect(result.current.state.errorMessage).toBe('');
   });
 
-  test('개별 장바구니 항목 선택을 변경하고 저장한다', async () => {
+  test('선택 id 목록을 변경하고 저장한다', async () => {
     mockGetCartItems(cartItems);
 
     const {result} = renderUseCart();
@@ -138,7 +138,7 @@ describe('useCart', () => {
     });
 
     act(() => {
-      result.current.toggleCartItem('cart-1');
+      result.current.changeSelectedCartItemIds(['cart-2']);
     });
 
     await waitFor(() => {
@@ -146,26 +146,6 @@ describe('useCart', () => {
     });
 
     expect(localStorage.getItem('shopping-cart-selected-cart-item-ids')).toBe(JSON.stringify(['cart-2']));
-  });
-
-  test('전체 장바구니 항목 선택을 변경하고 저장한다', async () => {
-    mockGetCartItems(cartItems);
-
-    const {result} = renderUseCart();
-
-    await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
-    });
-
-    act(() => {
-      result.current.toggleAllCartItems();
-    });
-
-    await waitFor(() => {
-      expect(result.current.state.selectedIds).toEqual([]);
-    });
-
-    expect(localStorage.getItem('shopping-cart-selected-cart-item-ids')).toBe(JSON.stringify([]));
   });
 
   test('장바구니 항목 수량을 변경한다', async () => {

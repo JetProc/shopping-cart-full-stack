@@ -55,36 +55,13 @@ describe('cartReducer', () => {
     expect(result.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
   });
 
-  test('toggleCartItem은 선택된 상품을 선택 해제한다', () => {
+  test('changeSelectedCartItemIds는 선택 id 목록을 변경한다', () => {
     const result = cartReducer(cartState, {
-      type: 'toggleCartItem',
-      payload: {cartItemId: 'cart-1'},
+      type: 'changeSelectedCartItemIds',
+      payload: {selectedIds: ['cart-2']},
     });
 
-    expect(result.selectedIds).toEqual([]);
-  });
-
-  test('toggleCartItem은 선택되지 않은 상품을 선택한다', () => {
-    const result = cartReducer(cartState, {
-      type: 'toggleCartItem',
-      payload: {cartItemId: 'cart-2'},
-    });
-
-    expect(result.selectedIds).toEqual(['cart-1', 'cart-2']);
-  });
-
-  test('toggleAllCartItems는 전체 선택되지 않은 상태에서 모든 상품을 선택한다', () => {
-    const result = cartReducer(cartState, {type: 'toggleAllCartItems'});
-
-    expect(result.selectedIds).toEqual(['cart-1', 'cart-2']);
-  });
-
-  test('toggleAllCartItems는 전체 선택된 상태에서 모든 선택을 해제한다', () => {
-    const state = {...cartState, selectedIds: ['cart-1', 'cart-2']};
-
-    const result = cartReducer(state, {type: 'toggleAllCartItems'});
-
-    expect(result.selectedIds).toEqual([]);
+    expect(result.selectedIds).toEqual(['cart-2']);
   });
 
   test('updateCartItemQuantity는 해당 상품의 수량만 변경한다', () => {
