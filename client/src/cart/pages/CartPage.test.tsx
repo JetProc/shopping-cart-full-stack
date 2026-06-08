@@ -26,6 +26,7 @@ const cartItems: CartItem[] = [
 
 beforeEach(() => {
   localStorage.clear();
+  jest.restoreAllMocks();
 });
 
 function mockGetCartItems(items: CartItem[]) {
@@ -145,6 +146,39 @@ describe('CartPage', () => {
     expect(await screen.findByText('장바구니에 담은 상품이 없습니다.')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: '주문 확인'})).toBeDisabled();
     expect(screen.queryByText('현재 0종류의 상품이 담겨있습니다.')).not.toBeInTheDocument();
+  });
+
+  test('장바구니 상품 삭제를 확인하면 화면에서 해당 상품을 제거한다', async () => {
+    const user = userEvent.setup();
+    let deletedCartItemId: string | null = null;
+
+    mockGetCartItems(cartItems);
+    mockServer.use(
+      http.delete(`${API_BASE_URL}/carts/:cartItemId`, ({params}) => {
+        deletedCartItemId = params.cartItemId as string;
+
+        return new HttpResponse(null, {status: 204});
+      })
+    );
+    jest.spyOn(window, 'confirm').mockReturnValue(true);
+
+    renderCartPage();
+
+    await screen.findByText('현재 2종류의 상품이 담겨있습니다.');
+
+    await user.click(screen.getAllByRole('button', {name: '삭제'})[0]);
+
+    await waitFor(() => {
+      expect(screen.queryByText('후드 집업')).not.toBeInTheDocument();
+    });
+
+    expect(deletedCartItemId).toBe('cart-1');
+    expect(screen.getByText('현재 1종류의 상품이 담겨있습니다.')).toBeInTheDocument();
+    expect(screen.getByText('데님 팬츠')).toBeInTheDocument();
+
+    const paymentSummary = screen.getByRole('region', {name: '결제 요약'});
+
+    expect(within(paymentSummary).getAllByText('100,000원')).toHaveLength(2);
   });
 
   test('주문 확인 버튼을 누르면 주문 확인 페이지로 이동한다', async () => {
