@@ -17,9 +17,12 @@ export type CartItem = {
   quantity: number;
 };
 
-export type CartState = {
+export type CartItemsState = {
   status: CartStatus;
   items: CartItem[];
-  selectedIds: CartItemId[];
   errorMessage: string;
+};
+
+export type CartSelectionState = {
+  selectedIds: CartItemId[];
 };

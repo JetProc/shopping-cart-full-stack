@@ -1,19 +1,19 @@
 import {useCallback, useEffect, useReducer} from 'react';
 
 import {deleteCartItem, getCartItems, updateCartItemQuantity} from '../api/cartApi.js';
-import {cartReducer} from '../domain/cartReducer.js';
-import {loadSelectedCartItemIds, saveSelectedCartItemIds} from '../domain/selectionStorage.js';
-import type {CartItem, CartItemId, CartState} from '../domain/types.js';
+import {cartItemsReducer} from '../domain/cartReducer.js';
+import type {CartItem, CartItemId, CartItemsState} from '../domain/types.js';
+import {useCartSelectionState} from './useCartSelectionState.js';
 
-const initialCartState: CartState = {
+const initialCartItemsState: CartItemsState = {
   status: 'loading',
   items: [],
-  selectedIds: [],
   errorMessage: '',
 };
 
 export type CartContextValue = {
-  state: CartState;
+  cartItemsState: CartItemsState;
+  selectedIds: CartItemId[];
   loadCartItems: () => Promise<void>;
   changeSelectedCartItemIds: (selectedIds: CartItemId[]) => void;
   changeCartItemQuantity: (cartItemId: CartItemId, quantity: CartItem['quantity']) => Promise<void>;
@@ -21,35 +21,26 @@ export type CartContextValue = {
 };
 
 export function useCartState(): CartContextValue {
-  const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const [cartItemsState, dispatch] = useReducer(cartItemsReducer, initialCartItemsState);
+  const {changeSelectedCartItemIds, initializeSelectedCartItemIds, removeSelectedCartItemId, selectedIds} =
+    useCartSelectionState();
 
   const loadCartItems = useCallback(async () => {
     dispatch({type: 'fetchStart'});
 
     try {
       const cartItems = await getCartItems();
-      const selectedIds = createInitialSelectedCartItemIds(cartItems);
 
-      dispatch({type: 'fetchSuccess', payload: {items: cartItems, selectedIds}});
+      dispatch({type: 'fetchSuccess', payload: {items: cartItems}});
+      initializeSelectedCartItemIds(cartItems);
     } catch (error) {
       dispatch({type: 'fetchError', payload: {errorMessage: getCartErrorMessage(error)}});
     }
-  }, []);
+  }, [initializeSelectedCartItemIds]);
 
   useEffect(() => {
     void loadCartItems();
   }, [loadCartItems]);
-
-  // 로컬 스토리지 저장 목적 useEffect
-  useEffect(() => {
-    if (state.status !== 'success') return;
-
-    saveSelectedCartItemIds(state.selectedIds);
-  }, [state.status, state.selectedIds]);
-
-  const changeSelectedCartItemIds = useCallback((selectedIds: CartItemId[]) => {
-    dispatch({type: 'changeSelectedCartItemIds', payload: {selectedIds}});
-  }, []);
 
   const changeCartItemQuantity = useCallback(async (cartItemId: CartItemId, quantity: CartItem['quantity']) => {
     try {
@@ -72,30 +63,20 @@ export function useCartState(): CartContextValue {
       await deleteCartItem(cartItemId);
 
       dispatch({type: 'deleteCartItem', payload: {cartItemId}});
+      removeSelectedCartItemId(cartItemId);
     } catch (error) {
       dispatch({type: 'fetchError', payload: {errorMessage: getCartErrorMessage(error)}});
     }
-  }, []);
+  }, [removeSelectedCartItemId]);
 
   return {
-    state,
+    cartItemsState,
+    selectedIds,
     loadCartItems,
     changeSelectedCartItemIds,
     changeCartItemQuantity,
     removeCartItem,
   };
-}
-
-function createInitialSelectedCartItemIds(cartItems: CartItem[]) {
-  const savedSelectedCartItemIds = loadSelectedCartItemIds();
-  const currentCartItemIds = cartItems.map((cartItem) => cartItem.id);
-
-  if (savedSelectedCartItemIds === null) {
-    //이전에 선택된 정보가 없다면(첫 진입) 전체 선택이 기본값
-    return currentCartItemIds;
-  }
-
-  return savedSelectedCartItemIds.filter((selectedCartItemId) => currentCartItemIds.includes(selectedCartItemId));
 }
 
 function getCartErrorMessage(error: unknown) {

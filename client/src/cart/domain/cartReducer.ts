@@ -1,20 +1,18 @@
-import type {CartItem, CartItemId, CartState} from './types.js';
+import type {CartItem, CartItemId, CartItemsState} from './types.js';
 
-type FetchSuccessPayload = Pick<CartState, 'items' | 'selectedIds'>;
-type FetchErrorPayload = Pick<CartState, 'errorMessage'>;
+type FetchSuccessPayload = Pick<CartItemsState, 'items'>;
+type FetchErrorPayload = Pick<CartItemsState, 'errorMessage'>;
 type CartItemIdPayload = {cartItemId: CartItemId};
-type SelectedIdsPayload = Pick<CartState, 'selectedIds'>;
 type UpdateCartItemQuantityPayload = CartItemIdPayload & {quantity: CartItem['quantity']};
 
-type CartAction =
+type CartItemsAction =
   | {type: 'fetchStart'}
   | {type: 'fetchSuccess'; payload: FetchSuccessPayload}
   | {type: 'fetchError'; payload: FetchErrorPayload}
-  | {type: 'changeSelectedCartItemIds'; payload: SelectedIdsPayload}
   | {type: 'updateCartItemQuantity'; payload: UpdateCartItemQuantityPayload}
   | {type: 'deleteCartItem'; payload: CartItemIdPayload};
 
-export function cartReducer(state: CartState, action: CartAction): CartState {
+export function cartItemsReducer(state: CartItemsState, action: CartItemsAction): CartItemsState {
   switch (action.type) {
     case 'fetchStart': {
       return startFetchingCart(state);
@@ -24,9 +22,6 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     }
     case 'fetchError': {
       return failFetchingCart(state, action.payload);
-    }
-    case 'changeSelectedCartItemIds': {
-      return changeSelectedCartItemIds(state, action.payload);
     }
     case 'updateCartItemQuantity': {
       return updateCartItemQuantity(state, action.payload);
@@ -39,7 +34,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
 
 // Fetch state functions
 
-function startFetchingCart(state: CartState): CartState {
+function startFetchingCart(state: CartItemsState): CartItemsState {
   return {
     ...state,
     status: 'loading',
@@ -47,17 +42,16 @@ function startFetchingCart(state: CartState): CartState {
   };
 }
 
-function completeFetchingCart(state: CartState, payload: FetchSuccessPayload): CartState {
+function completeFetchingCart(state: CartItemsState, payload: FetchSuccessPayload): CartItemsState {
   return {
     ...state,
     status: 'success',
     items: payload.items,
-    selectedIds: payload.selectedIds,
     errorMessage: '',
   };
 }
 
-function failFetchingCart(state: CartState, payload: FetchErrorPayload): CartState {
+function failFetchingCart(state: CartItemsState, payload: FetchErrorPayload): CartItemsState {
   return {
     ...state,
     status: 'error',
@@ -65,18 +59,9 @@ function failFetchingCart(state: CartState, payload: FetchErrorPayload): CartSta
   };
 }
 
-// Selection state functions
-
-function changeSelectedCartItemIds(state: CartState, payload: SelectedIdsPayload): CartState {
-  return {
-    ...state,
-    selectedIds: payload.selectedIds,
-  };
-}
-
 // Item state functions
 
-function updateCartItemQuantity(state: CartState, payload: UpdateCartItemQuantityPayload): CartState {
+function updateCartItemQuantity(state: CartItemsState, payload: UpdateCartItemQuantityPayload): CartItemsState {
   const updatedCartItems = state.items.map((cartItem) => {
     if (cartItem.id !== payload.cartItemId) return cartItem;
 
@@ -89,13 +74,11 @@ function updateCartItemQuantity(state: CartState, payload: UpdateCartItemQuantit
   };
 }
 
-function deleteCartItem(state: CartState, cartItemId: CartItemId): CartState {
+function deleteCartItem(state: CartItemsState, cartItemId: CartItemId): CartItemsState {
   const remainingCartItems = state.items.filter((cartItem) => cartItem.id !== cartItemId);
-  const remainingSelectedIds = state.selectedIds.filter((selectedCartItemId) => selectedCartItemId !== cartItemId);
 
   return {
     ...state,
     items: remainingCartItems,
-    selectedIds: remainingSelectedIds,
   };
 }
