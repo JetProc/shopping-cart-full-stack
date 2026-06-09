@@ -43,11 +43,11 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
-    expect(result.current.state.items).toEqual(cartItems);
-    expect(result.current.state.selectedIds).toEqual(['cart-1', 'cart-2']);
+    expect(result.current.cartItemsState.items).toEqual(cartItems);
+    expect(result.current.selectedIds).toEqual(['cart-1', 'cart-2']);
   });
 
   test('저장된 빈 선택 상태가 있으면 전체 해제 상태를 유지한다', async () => {
@@ -57,10 +57,10 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
-    expect(result.current.state.selectedIds).toEqual([]);
+    expect(result.current.selectedIds).toEqual([]);
   });
 
   test('저장된 선택 id 중 삭제된 장바구니 항목 id는 제외한다', async () => {
@@ -70,10 +70,10 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
-    expect(result.current.state.selectedIds).toEqual(['cart-2']);
+    expect(result.current.selectedIds).toEqual(['cart-2']);
   });
 
   test('장바구니 조회에 실패하면 에러 상태로 변경한다', async () => {
@@ -86,10 +86,10 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('error');
+      expect(result.current.cartItemsState.status).toBe('error');
     });
 
-    expect(result.current.state.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
+    expect(result.current.cartItemsState.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
   });
 
   test('장바구니 조회 실패 후 다시 조회하면 성공 상태로 복구한다', async () => {
@@ -110,22 +110,22 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('error');
+      expect(result.current.cartItemsState.status).toBe('error');
     });
 
-    expect(result.current.state.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
+    expect(result.current.cartItemsState.errorMessage).toBe('장바구니를 불러오지 못했습니다.');
 
     await act(async () => {
       await result.current.loadCartItems();
     });
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
-    expect(result.current.state.items).toEqual(cartItems);
-    expect(result.current.state.selectedIds).toEqual(['cart-1', 'cart-2']);
-    expect(result.current.state.errorMessage).toBe('');
+    expect(result.current.cartItemsState.items).toEqual(cartItems);
+    expect(result.current.selectedIds).toEqual(['cart-1', 'cart-2']);
+    expect(result.current.cartItemsState.errorMessage).toBe('');
   });
 
   test('선택 id 목록을 변경하고 저장한다', async () => {
@@ -134,7 +134,7 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
     act(() => {
@@ -142,7 +142,7 @@ describe('useCart', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.state.selectedIds).toEqual(['cart-2']);
+      expect(result.current.selectedIds).toEqual(['cart-2']);
     });
 
     expect(localStorage.getItem('shopping-cart-selected-cart-item-ids')).toBe(JSON.stringify(['cart-2']));
@@ -165,7 +165,7 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
     await act(async () => {
@@ -173,8 +173,8 @@ describe('useCart', () => {
     });
 
     expect(requestBody).toEqual({quantity: 5});
-    expect(result.current.state.items[0].quantity).toBe(5);
-    expect(result.current.state.items[1].quantity).toBe(1);
+    expect(result.current.cartItemsState.items[0].quantity).toBe(5);
+    expect(result.current.cartItemsState.items[1].quantity).toBe(1);
   });
 
   test('장바구니 항목 수량 변경에 실패하면 에러 상태로 변경한다', async () => {
@@ -190,15 +190,15 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
     await act(async () => {
       await result.current.changeCartItemQuantity('cart-1', 100);
     });
 
-    expect(result.current.state.status).toBe('error');
-    expect(result.current.state.errorMessage).toBe('수량은 1 이상 99 이하의 정수여야 합니다.');
+    expect(result.current.cartItemsState.status).toBe('error');
+    expect(result.current.cartItemsState.errorMessage).toBe('수량은 1 이상 99 이하의 정수여야 합니다.');
   });
 
   test('장바구니 항목을 삭제한다', async () => {
@@ -218,7 +218,7 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
     await act(async () => {
@@ -226,8 +226,8 @@ describe('useCart', () => {
     });
 
     expect(isDeleteRequested).toBe(true);
-    expect(result.current.state.items).toEqual([cartItems[1]]);
-    expect(result.current.state.selectedIds).toEqual(['cart-2']);
+    expect(result.current.cartItemsState.items).toEqual([cartItems[1]]);
+    expect(result.current.selectedIds).toEqual(['cart-2']);
   });
 
   test('장바구니 항목 삭제에 실패하면 에러 상태로 변경한다', async () => {
@@ -243,14 +243,14 @@ describe('useCart', () => {
     const {result} = renderUseCart();
 
     await waitFor(() => {
-      expect(result.current.state.status).toBe('success');
+      expect(result.current.cartItemsState.status).toBe('success');
     });
 
     await act(async () => {
       await result.current.removeCartItem('cart-1');
     });
 
-    expect(result.current.state.status).toBe('error');
-    expect(result.current.state.errorMessage).toBe('장바구니 항목을 찾을 수 없습니다.');
+    expect(result.current.cartItemsState.status).toBe('error');
+    expect(result.current.cartItemsState.errorMessage).toBe('장바구니 항목을 찾을 수 없습니다.');
   });
 });
