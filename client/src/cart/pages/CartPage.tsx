@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import {useNavigate} from 'react-router-dom';
 
 import {AsyncStateView} from '../../design-system/index.js';
 
@@ -14,48 +13,54 @@ import {Header} from '../components/layout/Header.js';
 
 import {useCart} from '../hooks/useCart.js';
 import {getSelectedOrderAmount, getShippingFee, getTotalPrice} from '../domain/cartSelectors.js';
-import type {CartState} from '../domain/types.js';
+import type {CartItemsState} from '../domain/types.js';
 
 export const CartPage = () => {
-  const navigate = useNavigate();
-  const {changeCartItemQuantity, changeSelectedCartItemIds, loadCartItems, removeCartItem, state} = useCart();
-  const status = getCartPageStatus(state);
-  const selectedOrderAmount = getSelectedOrderAmount(state);
-  const shippingFee = getShippingFee(state);
-  const totalPrice = getTotalPrice(state);
-
-  const isPaymentButtonDisabled = totalPrice === 0;
+  const {cartItemsState, loadCartItems} = useCart();
+  const status = getCartPageStatus(cartItemsState);
   const isOrderActionVisible = status === 'success' || status === 'empty';
 
   return (
     <>
       <Header title='SHOP' />
       <Main>
-        <CartPageHeader itemCount={status === 'success' ? state.items.length : null} />
+        <CartPageHeader itemCount={status === 'success' ? cartItemsState.items.length : null} />
         <AsyncStateView
           emptyFallback={<CartEmptyView />}
-          errorFallback={<CartErrorView errorMessage={state.errorMessage} onRetry={loadCartItems} />}
+          errorFallback={<CartErrorView errorMessage={cartItemsState.errorMessage} onRetry={loadCartItems} />}
           loadingFallback={<CartLoadingView />}
           status={status}
         >
-          <CartItemList
-            items={state.items}
-            selectedIds={state.selectedIds}
-            onChangeQuantity={changeCartItemQuantity}
-            onChangeSelectedIds={changeSelectedCartItemIds}
-            onDelete={removeCartItem}
-          />
-          <PaymentSummary selectedOrderAmount={selectedOrderAmount} shippingFee={shippingFee} totalPrice={totalPrice} />
+          <CartPageContent />
         </AsyncStateView>
-        {isOrderActionVisible && (
-          <CartOrderAction disabled={isPaymentButtonDisabled} onClick={() => navigate('/order-confirm')} />
-        )}
+        {isOrderActionVisible && <CartOrderAction />}
       </Main>
     </>
   );
 };
 
-function getCartPageStatus(state: CartState) {
+function CartPageContent() {
+  const {cartItemsState, changeCartItemQuantity, changeSelectedCartItemIds, removeCartItem, selectedIds} = useCart();
+  const cartSelection = {items: cartItemsState.items, selectedIds};
+  const selectedOrderAmount = getSelectedOrderAmount(cartSelection);
+  const shippingFee = getShippingFee(cartSelection);
+  const totalPrice = getTotalPrice(cartSelection);
+
+  return (
+    <>
+      <CartItemList
+        items={cartItemsState.items}
+        selectedIds={selectedIds}
+        onChangeQuantity={changeCartItemQuantity}
+        onChangeSelectedIds={changeSelectedCartItemIds}
+        onDelete={removeCartItem}
+      />
+      <PaymentSummary selectedOrderAmount={selectedOrderAmount} shippingFee={shippingFee} totalPrice={totalPrice} />
+    </>
+  );
+}
+
+function getCartPageStatus(state: CartItemsState) {
   if (state.status === 'success' && state.items.length === 0) return 'empty';
 
   return state.status;

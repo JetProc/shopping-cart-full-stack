@@ -12,11 +12,12 @@ import {formatPrice} from '../domain/priceFormatter.js';
 
 export const OrderConfirmPage = () => {
   const navigate = useNavigate();
-  const {loadCartItems, state} = useCart();
+  const {cartItemsState, loadCartItems, selectedIds} = useCart();
+  const cartSelection = {items: cartItemsState.items, selectedIds};
 
-  const selectedItemCount = getSelectedItemCount(state);
-  const selectedQuantity = getSelectedQuantity(state);
-  const totalPrice = getTotalPrice(state);
+  const selectedItemCount = getSelectedItemCount(cartSelection);
+  const selectedQuantity = getSelectedQuantity(cartSelection);
+  const totalPrice = getTotalPrice(cartSelection);
 
   return (
     <>
@@ -27,9 +28,9 @@ export const OrderConfirmPage = () => {
       </Header>
       <Main>
         <AsyncStateView
-          errorFallback={<CartErrorView errorMessage={state.errorMessage} onRetry={loadCartItems} />}
+          errorFallback={<CartErrorView errorMessage={cartItemsState.errorMessage} onRetry={loadCartItems} />}
           loadingFallback={<CartLoadingView />}
-          status={state.status}
+          status={cartItemsState.status}
         >
           <Summary>
             <Title>주문 확인</Title>
